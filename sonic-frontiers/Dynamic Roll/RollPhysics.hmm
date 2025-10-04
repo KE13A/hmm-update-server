@@ -1,0 +1,187 @@
+Code "Improved Rolling Physics"
+//
+    #include "Reflection" noemit
+
+    #lib "HMM"
+    #lib "INI"
+    #lib "Reflection"
+    #lib "SonicParameters"
+
+    #load "System.Numerics.dll"
+
+    using System.Numerics;
+    
+    static bool IsConfigInitialised = false;
+    static int CustomPhysics = 0;
+//
+{
+    if (!IsConfigInitialised)
+    {
+        var modsQuery = HMM.FindModsByName("Dynamic Roll");
+        if (modsQuery.Count == 1)
+        {
+            string modConfigIniPath = System.IO.Path.Combine(modsQuery[0].Path, "config.ini");
+            var ini = INI.Read(modConfigIniPath);
+
+            CustomPhysics = INI.Parse<int>(ini["Main"]["CustomPhysics"], CustomPhysics);
+        }
+
+        IsConfigInitialised = true;
+    }
+
+    if (CustomPhysics == 0)
+    {
+        return;
+    }
+
+	var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
+
+    float rollUP = Player.Kinematics.GetVerticalMagnitude()
+
+	if (SonicParametersInfo.pData == null)
+    {
+		return;
+    }
+    
+    var kinematics = Player.Kinematics.Get();
+    
+    if (kinematics == null)
+    {
+        return;
+    }
+
+    //Faster Downhill Rolling Speeds & Slower Rolling Uphill Speeds
+    if (Vector3.Transform(Vector3.UnitY, kinematics->Rotation).Y < 0.98f && rollUP < 5.0f)
+    {
+        RFL_SET_CONTEXTUAL_PLAYER_PARAM(SonicParametersInfo, driftDash.brake, -4.0f);
+        RFL_SET_CONTEXTUAL_PLAYER_PARAM(SonicParametersInfo, dropDash.brake, -4.0f);
+        RFL_SET_PARAM(SonicParametersInfo, cyberspaceSV.modePackage.spin.brake, -4.0f);
+    }
+    else
+    {
+        RFL_SET_CONTEXTUAL_PLAYER_PARAM(SonicParametersInfo, driftDash.brake, 8.0f);
+        RFL_SET_CONTEXTUAL_PLAYER_PARAM(SonicParametersInfo, dropDash.brake, 8.0f);
+        RFL_SET_PARAM(SonicParametersInfo, cyberspaceSV.modePackage.spin.brake, 8.0f);
+    }
+
+    //Tighter Rolling Rotation
+    if (IS_WORLD_FLAG(IsCyberSpace))
+    {
+        RFL_SET_CONTEXTUAL_PLAYER_PARAM(SonicParametersInfo, driftDash.steeringSpeed1, 300.0f);
+        RFL_SET_CONTEXTUAL_PLAYER_PARAM(SonicParametersInfo, driftDash.steeringSpeed2, 100.0f);
+        RFL_SET_CONTEXTUAL_PLAYER_PARAM(SonicParametersInfo, dropDash.steeringSpeed1, 300.0f);
+        RFL_SET_CONTEXTUAL_PLAYER_PARAM(SonicParametersInfo, dropDash.steeringSpeed2, 100.0f);
+    }
+    else
+    {
+        RFL_SET_CONTEXTUAL_PLAYER_PARAM(SonicParametersInfo, driftDash.steeringSpeed1, 400.0f);
+        RFL_SET_CONTEXTUAL_PLAYER_PARAM(SonicParametersInfo, driftDash.steeringSpeed2, 200.0f);
+        RFL_SET_CONTEXTUAL_PLAYER_PARAM(SonicParametersInfo, dropDash.steeringSpeed1, 400.0f);
+        RFL_SET_CONTEXTUAL_PLAYER_PARAM(SonicParametersInfo, dropDash.steeringSpeed2, 200.0f);
+    }
+}
+
+
+Patch "Tighter Jump Rotation" in "Physics" by "Hyper" does "Allows for tighter mid-air control for more precise movements when jumping, similar to SONIC THE HEDGEHOG (2006)." 
+//
+    #lib "HMM"
+    #lib "INI"
+
+    #load "System.Numerics.dll"
+
+    using System.Numerics;
+    
+    static bool IsConfigInitialised = false;
+    static int CustomPhysics = 0;
+    static float Threshold = 0.05f;
+//
+{
+    if (!IsConfigInitialised)
+    {
+        var modsQuery = HMM.FindModsByName("Dynamic Roll");
+        if (modsQuery.Count == 1)
+        {
+            string modConfigIniPath = System.IO.Path.Combine(modsQuery[0].Path, "config.ini");
+            var ini = INI.Read(modConfigIniPath);
+
+            CustomPhysics = INI.Parse<int>(ini["Main"]["CustomPhysics"], CustomPhysics);
+        }
+
+        IsConfigInitialised = true;
+    }
+
+    if (CustomPhysics == 0)
+    {
+        return;
+    }
+
+    fixed (float* pThreshold = &Threshold)
+    {
+        WriteAsmHook
+        (
+            $@"
+                push  rax
+                mov   rax, {(long)pThreshold}
+                mulss xmm7, cs:[rax]
+                maxss xmm0, xmm6
+                mulss xmm0, dword ptr [rsp + 0x140 + 0xFFFFFFFFFFFFFF30]
+                pop   rax
+            ",
+
+            /* 0x1407F562A */
+            ScanSignature
+            (
+                "\xF3\x0F\x59\x3D\xCC\xCC\xCC\xCC\xF3\x0F\x5F\xC6",
+                "xxxx????xxxx"
+            ),
+
+            HookBehavior.Replace
+        );
+    }
+}
+
+
+Patch "Disable Drop Dash Turning Delay" in "Physics/Sonic" by "Hyper" does "Disables the out of control timer that determines when Sonic can start turning whilst drop dashing." 
+//
+    #lib "HMM"
+    #lib "INI"
+
+    #load "System.Numerics.dll"
+
+    using System.Numerics;
+    
+    static bool IsConfigInitialised = false;
+    static int CustomPhysics = 0;
+//
+{
+    if (!IsConfigInitialised)
+    {
+        var modsQuery = HMM.FindModsByName("Dynamic Roll");
+        if (modsQuery.Count == 1)
+        {
+            string modConfigIniPath = System.IO.Path.Combine(modsQuery[0].Path, "config.ini");
+            var ini = INI.Read(modConfigIniPath);
+
+            CustomPhysics = INI.Parse<int>(ini["Main"]["CustomPhysics"], CustomPhysics);
+        }
+
+        IsConfigInitialised = true;
+    }
+
+    if (CustomPhysics == 0)
+    {
+        return;
+    }
+
+    WriteNop
+    (
+        /* 0x14084323B */
+        ScanSignature
+        (
+            "\x73\x19\x48\x8B\x47\x40",
+            "xxxxxx"
+        ),
+
+        2
+    );
+}

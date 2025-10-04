@@ -1,0 +1,63 @@
+{
+	"Groups": [
+		{
+			"Name": "Main",
+			"DisplayName": "Customization",
+			"Elements": [
+				{
+					"Name": "CustomPhysics",
+					"DisplayName": "Custom Physics",
+					"Description": [
+						"Gives spinball state custom physics for improved movement and handling"
+					],
+					"Type": "EnableEnum",
+					"MinValue": null,
+					"MaxValue": null,
+					"DefaultValue": "1"
+				},
+				{
+					"Name": "RollDamage",
+					"DisplayName": "Rolling Damage",
+					"Description": [
+						"Damages enemies while rolling"
+					],
+					"Type": "EnableEnum",
+					"MinValue": null,
+					"MaxValue": null,
+					"DefaultValue": "1"
+				},
+				{
+					"Name": "RollTrail",
+					"DisplayName": "Rolling Trail",
+					"Description": [
+						"Adds a rolling trail when charaters are in a spinball state"
+					],
+					"Type": "EnableEnum",
+					"MinValue": null,
+					"MaxValue": null,
+					"DefaultValue": "1"
+				}
+			]
+		}
+	],
+	"Enums": {
+
+		"EnableEnum": [
+			{
+				"DisplayName": "Enabled",
+				"Value": "1",
+				"Description": [
+					""
+				]
+			},
+			{
+				"DisplayName": "Disabled",
+				"Value": "0",
+				"Description": [
+					""
+				]
+			}
+		]
+	},
+	"IniFile": "config.ini"
+ }

@@ -1,0 +1,133 @@
+Code "Roll Trail"
+//
+	#include "BlackboardStatus" noemit 
+
+    #lib "HMM"
+    #lib "INI"
+    #lib "Player"
+    #LIB "Lua"
+
+    #load "System.Numerics.dll"
+
+    using System.Numerics;
+
+    static bool IsConfigInitialised = false;
+    static int RollTrail = 0;
+    static bool Streak = false;
+//
+{
+    if (!IsConfigInitialised)
+    {
+        var modsQuery = HMM.FindModsByName("Dynamic Roll");
+        if (modsQuery.Count == 1)
+        {
+            string modConfigIniPath = System.IO.Path.Combine(modsQuery[0].Path, "config.ini");
+            var ini = INI.Read(modConfigIniPath);
+
+            RollTrail = INI.Parse<int>(ini["Main"]["RollTrail"], RollTrail);
+        }
+
+        IsConfigInitialised = true;
+    }
+
+    if (RollTrail == 0)
+    {
+        return;
+    }
+
+    Lua.Call("LoadLevel", "warship01")
+
+    var currentState = Player.State.GetCurrentStateID<Sonic.StateID>();
+
+    bool Rolling =
+    currentState == Sonic.StateID.StateSpin ||
+    currentState == Sonic.StateID.StateDropDash ||
+    currentState == Sonic.StateID.StateDriftDash ||
+    currentState == Sonic.StateID.StateSpinBoost ||
+    currentState == Sonic.StateID.StateSpinBoostCharge;
+
+    bool isBoomDown = Player.Input.IsDown(Player.InputActionType.PlayerSonicboom);
+    bool isBoomReleased = Player.Input.IsReleased(Player.InputActionType.PlayerSonicboom);
+
+    float currentSpeed = Player.Kinematics.GetMagnitude();
+
+    if (RollTrail == 1)
+    {
+        if(!Rolling || isBoomReleased || currentSpeed <= 5.0f)
+        {
+            Player.Effect.StopEffect("RollTrail");
+            Streak = false;
+        }
+        else if (Player.Status.IsGrounded() || (isBoomDown && !Player.Status.IsGrounded()))
+        {
+            if(!Streak)
+            {
+                if(Player.GetPlayerType() == Player.PlayerType.Sonic)
+                {
+                Player.Effect.PlayEffect("RollTrail", "CUSTOM_Sonic")
+                }
+
+                if(Player.GetPlayerType() == Player.PlayerType.Tails)
+                {
+                Player.Effect.PlayEffect("RollTrail", "CUSTOM_Tails")
+                }
+
+                if(Player.GetPlayerType() == Player.PlayerType.Knuckles)
+                {
+                Player.Effect.PlayEffect("RollTrail", "CUSTOM_Knuckles")
+                }
+
+                if(Player.GetPlayerType() == Player.PlayerType.Amy)
+                {
+                Player.Effect.PlayEffect("RollTrail", "CUSTOM_Amy")
+                }
+                Streak = true;
+            }
+        }
+        else
+        {
+            Player.Effect.StopEffect("RollTrail");
+            Streak = false;
+        }
+    }
+}
+
+
+Code "Roll Up SFX"
+//
+	#include "BlackboardStatus" noemit 
+
+    #lib "Player"
+
+    #load "System.Numerics.dll"
+
+    using System.Numerics;
+
+    static bool SpinSFX = false;
+//
+{
+    var currentState = Player.State.GetCurrentStateID<Sonic.StateID>();
+
+    bool isBoomDown = Player.Input.IsDown(Player.InputActionType.PlayerSonicboom);
+    bool isBoomReleased = Player.Input.IsReleased(Player.InputActionType.PlayerSonicboom);
+
+    bool Rolling =
+    currentState == Sonic.StateID.StateSpin ||
+    currentState == Sonic.StateID.StateDropDash ||
+    currentState == Sonic.StateID.StateDriftDash ||
+    currentState == Sonic.StateID.StateSpinBoost ||
+    currentState == Sonic.StateID.StateSpinBoostCharge;
+
+    // Plays Sound effect when starting roll
+    if (isBoomDown && Rolling && !SpinSFX)
+    {
+        Player.Sound.PlaySound("_sn_stomping_start");
+        SpinSFX = true;
+    }
+    else if (isBoomReleased && SpinSFX)
+    {
+        int soundHandle = Player.Sound.PlaySound("_sn_stomping_start");
+        Player.Sound.StopSound(&soundHandle);
+        SpinSFX = false;
+    }
+}
