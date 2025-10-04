@@ -53,6 +53,7 @@ Code "Dynamic Roll" in "Gameplay" by "KE13A"
 
     var kinematics = Player.Kinematics.Get();
     float currentSpeed = Player.Kinematics.GetMagnitude();
+    float timeScale = 1.0f; // normalize to 60fps equivalent
 
     if (BlackboardStatus.Get() == null)
     {
@@ -97,11 +98,12 @@ Code "Dynamic Roll" in "Gameplay" by "KE13A"
     Player.State.Discard<Tails.StateID>(Tails.StateID.StateSpinBoostCharge);
 
     // Grounded Rolling Transition
-    preRollTargetTime = (1.85f / currentSpeed);
+    preRollTargetTime = (0.85f / currentSpeed);
 
     if (isBoomPressed)
     {
-        preRollTime += Time.GetDeltaTime();
+        timeScale = Time.GetDeltaTime() / (1.0f / 60.0f);
+        preRollTime += (Time.GetDeltaTime() * timeScale);
     }
     else
     {

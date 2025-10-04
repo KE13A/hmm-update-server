@@ -14,6 +14,7 @@ Code "Roll Trail"
     static bool IsConfigInitialised = false;
     static int RollTrail = 0;
     static bool Streak = false;
+    static float rollTime = 0.0f;
 //
 {
     if (!IsConfigInitialised)
@@ -50,6 +51,16 @@ Code "Roll Trail"
     bool isBoomReleased = Player.Input.IsReleased(Player.InputActionType.PlayerSonicboom);
 
     float currentSpeed = Player.Kinematics.GetMagnitude();
+    float timeScale = Time.GetDeltaTime() / (1.0f / 60.0f); // normalize to 60fps equivalent
+
+    if (Rolling)
+    {
+        rollTime += (Time.GetDeltaTime() * timeScale);
+    }
+    else
+    {
+        rollTime = 0.0f;
+    }
 
     if (RollTrail == 1)
     {
@@ -58,7 +69,7 @@ Code "Roll Trail"
             Player.Effect.StopEffect("RollTrail");
             Streak = false;
         }
-        else if (Player.Status.IsGrounded() || (isBoomDown && !Player.Status.IsGrounded()))
+        else if ((rollTime > 0.0085f && Player.Status.IsGrounded()) || (isBoomDown && !Player.Status.IsGrounded()))
         {
             if(!Streak)
             {
@@ -103,9 +114,10 @@ Code "Roll Up SFX"
 
     using System.Numerics;
 
+    static bool _isInitialised = false;
     static bool spinSFX = false;
     static float rollTime = 0.0f;
-    static bool _isInitialised = false;
+    static float preRollTargetTime = 0.0f;
 //
 {
     var currentState = Player.State.GetCurrentStateID<Sonic.StateID>();
@@ -120,9 +132,14 @@ Code "Roll Up SFX"
     currentState == Sonic.StateID.StateSpinBoost ||
     currentState == Sonic.StateID.StateSpinBoostCharge;
 
+    float currentSpeed = Player.Kinematics.GetMagnitude();
+    float timeScale = 1.0f; // normalize to 60fps equivalent
+    
     if (Rolling)
     {
-        rollTime += Time.GetDeltaTime();
+        preRollTargetTime = (0.1f / currentSpeed);
+        timeScale = Time.GetDeltaTime() / (1.0f / 60.0f);
+        rollTime += (Time.GetDeltaTime() * timeScale);
     }
     else
     {
@@ -130,7 +147,7 @@ Code "Roll Up SFX"
     }
 
     // Plays Sound effect when starting roll
-    if (isBoomDown && rollTime > 0.0125f && !spinSFX)
+    if (isBoomDown && rollTime > preRollTargetTime && !spinSFX)
     {
         Player.Sound.PlaySound("_sn_stomping_start");
         spinSFX = true;
