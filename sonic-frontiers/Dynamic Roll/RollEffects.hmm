@@ -103,7 +103,9 @@ Code "Roll Up SFX"
 
     using System.Numerics;
 
-    static bool SpinSFX = false;
+    static bool spinSFX = false;
+    static float rollTime = 0.0f;
+    static bool _isInitialised = false;
 //
 {
     var currentState = Player.State.GetCurrentStateID<Sonic.StateID>();
@@ -118,16 +120,25 @@ Code "Roll Up SFX"
     currentState == Sonic.StateID.StateSpinBoost ||
     currentState == Sonic.StateID.StateSpinBoostCharge;
 
+    if (Rolling)
+    {
+        rollTime += Time.GetDeltaTime();
+    }
+    else
+    {
+        rollTime = 0.0f;
+    }
+
     // Plays Sound effect when starting roll
-    if (isBoomDown && Rolling && !SpinSFX)
+    if (isBoomDown && rollTime > 0.0125f && !spinSFX)
     {
         Player.Sound.PlaySound("_sn_stomping_start");
-        SpinSFX = true;
+        spinSFX = true;
     }
-    else if (isBoomReleased && SpinSFX)
+    else if ((isBoomReleased && spinSFX))
     {
         int soundHandle = Player.Sound.PlaySound("_sn_stomping_start");
         Player.Sound.StopSound(&soundHandle);
-        SpinSFX = false;
+        spinSFX = false;
     }
 }
