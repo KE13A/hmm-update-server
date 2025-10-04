@@ -1,4 +1,4 @@
-# Dynamic Roll v1.1
+# Dynamic Roll v1.1.0
 * Added Animation transitions from grounded rolling and unrolling
 * Added transition into Roll from Slide
 * Transitions bugfixes
