@@ -1,2 +1,2 @@
-# Dynamic Roll v0.1.0
+# Dynamic Roll v1.0
 - Initial Release
