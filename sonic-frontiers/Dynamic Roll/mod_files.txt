@@ -1,1 +1,3 @@
+add Roll.hmm
+add RollEffects.hmm
 add mod.ini
