@@ -38,85 +38,92 @@ Code "Dynamic Roll" in "Gameplay" by "KE13A"
     currentState == Sonic.StateID.StateSpinBoostCharge;
 
     bool Jumped =
-    previousState == Sonic.StateID.StateFall ||
-    previousState == Sonic.StateID.StateGrindJump ||
     previousState == Sonic.StateID.StateJump ||
     previousState == Sonic.StateID.StateBaseJump ||
     previousState == Sonic.StateID.StateBumpJump ||
     previousState == Sonic.StateID.StateWallJump ||
     previousState == Sonic.StateID.StateBounceJump ||
-    previousState == Sonic.StateID.StateDoubleJump;
+    previousState == Sonic.StateID.StateDoubleJump ||
+    previousState == Sonic.StateID.StateFall ||
+    previousState == Sonic.StateID.StateGrindJump ||
+    previousState == Sonic.StateID.StateGrindDoubleJump;
 
     var kinematics = Player.Kinematics.Get();
-    if (BlackboardStatus.Get() != null)
+
+    if (BlackboardStatus.Get() == null)
     {
-        // === LT pressed - State Redirects and Discards ===
-        if (Player.Status.IsSideView())
-        {
-            Player.State.Redirect<Sonic.StateID>(Sonic.StateID.StateSpinBoost, Sonic.StateID.StateSpin);
-            Player.State.Redirect<Amy.StateID>(Amy.StateID.StateSpinBoost, Amy.StateID.StateSpin);
-            Player.State.Redirect<Knuckles.StateID>(Knuckles.StateID.StateSpinBoost, Knuckles.StateID.StateSpin);
-            Player.State.Redirect<Tails.StateID>(Tails.StateID.StateSpinBoost, Tails.StateID.StateSpin);
-        }
-        else
-        {
-            Player.State.Redirect<Sonic.StateID>(Sonic.StateID.StateSpinBoost, Sonic.StateID.StateDriftDash);
-            Player.State.Redirect<Amy.StateID>(Amy.StateID.StateSpinBoost, Amy.StateID.StateDriftDash);
-            Player.State.Redirect<Knuckles.StateID>(Knuckles.StateID.StateSpinBoost, Knuckles.StateID.StateDriftDash);
-            Player.State.Redirect<Tails.StateID>(Tails.StateID.StateSpinBoost, Tails.StateID.StateDriftDash);
-        }
+        return;
+    }
 
-        if (Rolling)
-        {
-            Player.State.Discard<Sonic.StateID>(Sonic.StateID.StateDropDash);
-            Player.State.Discard<Amy.StateID>(Amy.StateID.StateDropDash);
-            Player.State.Discard<Knuckles.StateID>(Knuckles.StateID.StateDropDash);
-            Player.State.Discard<Tails.StateID>(Tails.StateID.StateDropDash);
-        }
-        else
-        {
-            Player.State.Restore<Sonic.StateID>(Sonic.StateID.StateDropDash);
-            Player.State.Restore<Amy.StateID>(Amy.StateID.StateDropDash);
-            Player.State.Restore<Knuckles.StateID>(Knuckles.StateID.StateDropDash);
-            Player.State.Restore<Tails.StateID>(Tails.StateID.StateDropDash);           
-        }
+    // === LT pressed - State Redirects and Discards ===
+    if (Player.Status.IsSideView())
+    {
+        Player.State.Redirect<Sonic.StateID>(Sonic.StateID.StateSpinBoost, Sonic.StateID.StateSpin);
+        Player.State.Redirect<Amy.StateID>(Amy.StateID.StateSpinBoost, Amy.StateID.StateSpin);
+        Player.State.Redirect<Knuckles.StateID>(Knuckles.StateID.StateSpinBoost, Knuckles.StateID.StateSpin);
+        Player.State.Redirect<Tails.StateID>(Tails.StateID.StateSpinBoost, Tails.StateID.StateSpin);
+    }
+    else
+    {
+        Player.State.Redirect<Sonic.StateID>(Sonic.StateID.StateSpinBoost, Sonic.StateID.StateDriftDash);
+        Player.State.Redirect<Amy.StateID>(Amy.StateID.StateSpinBoost, Amy.StateID.StateDriftDash);
+        Player.State.Redirect<Knuckles.StateID>(Knuckles.StateID.StateSpinBoost, Knuckles.StateID.StateDriftDash);
+        Player.State.Redirect<Tails.StateID>(Tails.StateID.StateSpinBoost, Tails.StateID.StateDriftDash);
+    }
 
-        Player.State.Discard<Sonic.StateID>(Sonic.StateID.StateSpinBoostCharge);
-        Player.State.Discard<Amy.StateID>(Amy.StateID.StateSpinBoostCharge);
-        Player.State.Discard<Knuckles.StateID>(Knuckles.StateID.StateSpinBoostCharge);
-        Player.State.Discard<Tails.StateID>(Tails.StateID.StateSpinBoostCharge);
+    if (Rolling)
+    {
+        Player.State.Discard<Sonic.StateID>(Sonic.StateID.StateDropDash);
+        Player.State.Discard<Amy.StateID>(Amy.StateID.StateDropDash);
+        Player.State.Discard<Knuckles.StateID>(Knuckles.StateID.StateDropDash);
+        Player.State.Discard<Tails.StateID>(Tails.StateID.StateDropDash);
+    }
+    else
+    {
+        Player.State.Restore<Sonic.StateID>(Sonic.StateID.StateDropDash);
+        Player.State.Restore<Amy.StateID>(Amy.StateID.StateDropDash);
+        Player.State.Restore<Knuckles.StateID>(Knuckles.StateID.StateDropDash);
+        Player.State.Restore<Tails.StateID>(Tails.StateID.StateDropDash);           
+    }
 
-        //Slide Trasition to Roll 
-        if (currentState == Sonic.StateID.StateSliding)
+    Player.State.Discard<Sonic.StateID>(Sonic.StateID.StateSpinBoostCharge);
+    Player.State.Discard<Amy.StateID>(Amy.StateID.StateSpinBoostCharge);
+    Player.State.Discard<Knuckles.StateID>(Knuckles.StateID.StateSpinBoostCharge);
+    Player.State.Discard<Tails.StateID>(Tails.StateID.StateSpinBoostCharge);
+
+    //Slide Trasition to Roll 
+    if (currentState == Sonic.StateID.StateSliding)
+    {
+        if (isBoomDown)
         {
-            if (isBoomDown)
+            Player.Animation.SetAnimation("JUMP_BALL"); 
+
+            var vel = kinematics->Velocity;
+
+            if (Player.Status.IsSideView())
             {
-                Player.Animation.SetAnimation("JUMP_BALL"); 
-
-                var vel = kinematics->Velocity;
-
-                if (Player.Status.IsSideView())
-                {
-                    Player.State.SetState(Sonic.StateID.StateSpin);
-                }
-                else
-                {
-                    Player.State.SetState(Sonic.StateID.StateDriftDash);
-                }
-
-                kinematics->Velocity = vel;
+                Player.State.SetState(Sonic.StateID.StateSpin);
             }
+            else
+            {
+                Player.State.SetState(Sonic.StateID.StateDriftDash);
+            }
+
+            kinematics->Velocity = vel;
         }
+    }
 
-        // Airborne spinball check
-        if (!Player.Status.IsGrounded() && isBoomDown)
-        {
-            airBallActive = true;
-        }
+    // Airborne spinball check
+    if (!Player.Status.IsGrounded() && isBoomDown)
+    {
+        airBallActive = true;
+    }
 
 
-        // === LT release ===
-        if (isBoomReleased && (Jumped || Rolling))
+    // === LT release ===
+    if (isBoomReleased)
+    {
+        if (Jumped || Rolling)
         {
             var vel = kinematics->Velocity;
             if (Player.Input.IsPressed(Player.InputActionType.PlayerJump))
@@ -139,98 +146,98 @@ Code "Dynamic Roll" in "Gameplay" by "KE13A"
             {
                 Player.State.SetState(Sonic.StateID.StateSpringJumpHeadLand);
             }
-
-            airBallActive = false;
         }
 
+        airBallActive = false;
+    }
 
-        // === Landing & Exiting checks ===
-        // Re-enter DriftDash if LT is held
-        if (Player.Status.IsGrounded() && airBallActive && currentState != Sonic.StateID.StateRecoveryJump)
+
+    // === Landing & Exiting checks ===
+    // Re-enter DriftDash if LT is held
+    if (Player.Status.IsGrounded() && airBallActive && currentState != Sonic.StateID.StateRecoveryJump)
+    {
+        var vel = kinematics->Velocity;
+
+        if (Player.Status.IsSideView())
         {
-            var vel = kinematics->Velocity;
-
-            if (Player.Status.IsSideView())
-            {
-                Player.State.SetState(Sonic.StateID.StateSpin);
-                kinematics->Velocity = vel;
-            }
-            else
-            {
-                Player.State.SetState(Sonic.StateID.StateDriftDash);
-            }
-
-            airBallActive = false;
-        }
-
-        // SpringJumpHeadLand exit handling
-        if (currentState == Sonic.StateID.StateSpringJumpHeadLand)
-        {
-            var vel = kinematics->Velocity;
-            springLandTimer += Time.GetDeltaTime();
-
-            if (Player.Input.IsPressed(Player.InputActionType.PlayerJump))
-            {
-                Player.State.SetState(Sonic.StateID.StateBaseJump);
-                springLandTimer = 0.0f;
-            }
-            else if (Player.Input.IsPressed(Player.InputActionType.PlayerStomping) && Player.GetPlayerType() == Player.PlayerType.Sonic)
-            {
-                Player.State.SetState(Sonic.StateID.StateSliding);
-                springLandTimer = 0.0f;
-            }
-            else if (Player.Input.IsPressed(Player.InputActionType.PlayerBoost))
-            {
-                Player.State.SetState(Sonic.StateID.StateSpinBoost);
-                springLandTimer = 0.0f;
-            }
-            else if (springLandTimer >= 0.15f)
-            {
-                if (Player.Status.IsGrounded())
-                {
-                    if (isBoomDown)
-                    {
-                        if (Player.Status.IsSideView())
-                        {
-                            Player.State.SetState(Sonic.StateID.StateSpin);
-                            kinematics->Velocity = vel;
-                        }
-                        else
-                        {
-                            Player.State.SetState(Sonic.StateID.StateDriftDash);
-                        }
-                    }
-                    else if (Player.Input.IsDown(Player.InputActionType.PlayerStomping) && Player.GetPlayerType() == Player.PlayerType.Sonic)
-                    {
-                        Player.State.SetState(Sonic.StateID.StateSliding);
-                    }
-                    else
-                    {
-                        Player.State.SetState(Sonic.StateID.StateRun);
-                    }
-                }
-                else
-                {
-                    Player.State.SetState(Sonic.StateID.StateFall);
-                    airBallActive = false;
-                    kinematics->Velocity = vel;
-                }
-                springLandTimer = 0.0f;
-            }
-            else if (kinematics != null)
-            {
-                float dotProduct = Vector3.Dot(Vector3.Transform(Vector3.UnitY, kinematics->Rotation), Vector3.UnitY);
-
-                if (dotProduct < 0.01f)
-                {
-                    Player.State.SetState<Sonic.StateID>(Sonic.StateID.StateRun);
-                }
-            }
+            Player.State.SetState(Sonic.StateID.StateSpin);
+            kinematics->Velocity = vel;
         }
         else
         {
+            Player.State.SetState(Sonic.StateID.StateDriftDash);
+        }
+
+        airBallActive = false;
+    }
+
+    // SpringJumpHeadLand exit handling
+    if (currentState == Sonic.StateID.StateSpringJumpHeadLand)
+    {
+        var vel = kinematics->Velocity;
+        springLandTimer += Time.GetDeltaTime();
+
+        if (Player.Input.IsPressed(Player.InputActionType.PlayerJump))
+        {
+            Player.State.SetState(Sonic.StateID.StateBaseJump);
             springLandTimer = 0.0f;
         }
+        else if (Player.Input.IsPressed(Player.InputActionType.PlayerStomping) && Player.GetPlayerType() == Player.PlayerType.Sonic)
+        {
+            Player.State.SetState(Sonic.StateID.StateSliding);
+            springLandTimer = 0.0f;
+        }
+        else if (Player.Input.IsPressed(Player.InputActionType.PlayerBoost))
+        {
+            Player.State.SetState(Sonic.StateID.StateSpinBoost);
+            springLandTimer = 0.0f;
+        }
+        else if (springLandTimer >= 0.2f)
+        {
+            if (Player.Status.IsGrounded())
+            {
+                if (isBoomDown)
+                {
+                    if (Player.Status.IsSideView())
+                    {
+                        Player.State.SetState(Sonic.StateID.StateSpin);
+                        kinematics->Velocity = vel;
+                    }
+                    else
+                    {
+                        Player.State.SetState(Sonic.StateID.StateDriftDash);
+                    }
+                }
+                else if (Player.Input.IsDown(Player.InputActionType.PlayerStomping) && Player.GetPlayerType() == Player.PlayerType.Sonic)
+                {
+                    Player.State.SetState(Sonic.StateID.StateSliding);
+                }
+                else
+                {
+                    Player.State.SetState(Sonic.StateID.StateRun);
+                }
+            }
+            else
+            {
+                Player.State.SetState(Sonic.StateID.StateFall);
+                airBallActive = false;
+                kinematics->Velocity = vel;
+            }
+            springLandTimer = 0.0f;
+        }
+        else if (kinematics != null)
+        {
+            float dotProduct = Vector3.Dot(Vector3.Transform(Vector3.UnitY, kinematics->Rotation), Vector3.UnitY);
+
+            if (dotProduct < 0.01f)
+            {
+                Player.State.SetState<Sonic.StateID>(Sonic.StateID.StateRun);
+            }
+        }
+    }
+    else
+    {
+        springLandTimer = 0.0f;
     }
 }
 
@@ -245,6 +252,12 @@ Code "Crouch with Left Trigger" in "Gameplay" by "KE13A"
 //
 {
     float currentSpeed = Player.Kinematics.GetMagnitude();
+
+    if (BlackboardStatus.Get() == null)
+    {
+        return;
+    }
+
 
     //Crouch
     if (Player.Status.IsGrounded() && currentSpeed <= 0.0f && Player.Input.IsDown(Player.InputActionType.PlayerSonicboom) && !IS_WORLD_FLAG(IsBattle))
