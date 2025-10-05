@@ -22,6 +22,7 @@ Code "Dynamic Roll" in "Gameplay" by "KE13A"
     static bool preRoll = false;
     static float preRollTime = 0.0f;
     static float preRollTargetTime = 0.0f;
+    static float timeScale = 1.0f;
 //
 {
     Globals.Set("Drop Dash Over Spin Dash", false);
@@ -53,7 +54,6 @@ Code "Dynamic Roll" in "Gameplay" by "KE13A"
 
     var kinematics = Player.Kinematics.Get();
     float currentSpeed = Player.Kinematics.GetMagnitude();
-    float timeScale = 1.0f; // normalize to 60fps equivalent
 
     if (BlackboardStatus.Get() == null)
     {
@@ -98,11 +98,11 @@ Code "Dynamic Roll" in "Gameplay" by "KE13A"
     Player.State.Discard<Tails.StateID>(Tails.StateID.StateSpinBoostCharge);
 
     // Grounded Rolling Transition
-    preRollTargetTime = (0.85f / currentSpeed);
+    preRollTargetTime = ((85f / currentSpeed) - 1.5f);
+    timeScale = Time.GetDeltaTime() / (1.0f / 60.0f); // normalize to 60fps equivalent
 
-    if (isBoomPressed)
+    if (isBoomDown)
     {
-        timeScale = Time.GetDeltaTime() / (1.0f / 60.0f);
         preRollTime += (Time.GetDeltaTime() * timeScale);
     }
     else
@@ -110,7 +110,7 @@ Code "Dynamic Roll" in "Gameplay" by "KE13A"
         preRollTime = 0.0f;
     }
 
-    if (previousState == Sonic.StateID.StateRun && Rolling && preRollTime < preRollTargetTime)
+    if ((previousState is Sonic.StateID.StateRun or Sonic.StateID.StateSliding) && Rolling && isBoomDown && (preRollTime < preRollTargetTime || preRollTargetTime < 0.0f))
     {
         var vel = kinematics->Velocity;
 
@@ -122,27 +122,6 @@ Code "Dynamic Roll" in "Gameplay" by "KE13A"
     else
     {
         preRoll = false;
-    }
-
-    // Slide Transition to Roll 
-    if (previousState == Sonic.StateID.StateSliding && Rolling)
-    {
-        if (isBoomDown)
-        {
-            Player.State.SetState(Sonic.StateID.StateStandRoot);
-            var vel = kinematics->Velocity;
-
-            if (Player.Status.IsSideView())
-            {
-                Player.State.SetState(Sonic.StateID.StateSpin);
-            }
-            else
-            {
-                Player.State.SetState(Sonic.StateID.StateDriftDash);
-            }
-
-            kinematics->Velocity = vel;
-        }
     }
 
     // Airborne Roll Check
@@ -637,7 +616,7 @@ Code "DriftDash do Damage" in "Gameplay/Skills"
 
     Sonic.StateID NotifyStateRunDamageCollision(Sonic.StateID in_stateId, Sonic.StateID[] in_stateStackTrace)
     {
-        if (_rollStates.Contains(in_stateId) && isBoomDown)
+        if (_rollStates.Contains(in_stateId))
         {
             Player.Collision.SetCollisionSphere(Player.CollisionType.Damage, 1.0f);
             Player.Collision.SetEntityCollision(false);
@@ -903,7 +882,7 @@ Code "Rolling Animation Changes"
         }
         
         // Roll Exit Animation
-        if ( currentSpeed >= 40.0f && Rolled)
+        if ( currentSpeed >= 35.0f && Rolled)
         {
             Player.Animation.SetAnimation("JUMP_BALL");     
         }

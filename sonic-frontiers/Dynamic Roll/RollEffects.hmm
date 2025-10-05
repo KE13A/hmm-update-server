@@ -114,13 +114,14 @@ Code "Roll Up SFX"
 
     using System.Numerics;
 
-    static bool _isInitialised = false;
     static bool spinSFX = false;
-    static float rollTime = 0.0f;
+    static float preRollTime = 0.0f;
     static float preRollTargetTime = 0.0f;
+    static float timeScale = 1.0f;
 //
 {
     var currentState = Player.State.GetCurrentStateID<Sonic.StateID>();
+    var previousState = Player.State.GetPreviousStateID<Sonic.StateID>();
 
     bool isBoomDown = Player.Input.IsDown(Player.InputActionType.PlayerSonicboom);
     bool isBoomReleased = Player.Input.IsReleased(Player.InputActionType.PlayerSonicboom);
@@ -133,21 +134,21 @@ Code "Roll Up SFX"
     currentState == Sonic.StateID.StateSpinBoostCharge;
 
     float currentSpeed = Player.Kinematics.GetMagnitude();
-    float timeScale = 1.0f; // normalize to 60fps equivalent
-    
-    if (Rolling)
+
+    preRollTargetTime = (1.0f / currentSpeed);
+    timeScale = Time.GetDeltaTime() / (1.0f / 60.0f); // normalize to 60fps equivalent
+
+    if (currentState == Sonic.StateID.StateSpringJumpHeadLand)
     {
-        preRollTargetTime = (0.1f / currentSpeed);
-        timeScale = Time.GetDeltaTime() / (1.0f / 60.0f);
-        rollTime += (Time.GetDeltaTime() * timeScale);
+        preRollTime += (Time.GetDeltaTime() * timeScale);
     }
     else
     {
-        rollTime = 0.0f;
+        preRollTime = 0.0f;
     }
 
     // Plays Sound effect when starting roll
-    if (isBoomDown && rollTime > preRollTargetTime && !spinSFX)
+    if (isBoomDown && !spinSFX && (preRollTime > preRollTargetTime  || previousState == Sonic.StateID.StateSpringJumpHeadLand && Rolling || !Player.Status.IsGrounded() && Rolling))
     {
         Player.Sound.PlaySound("_sn_stomping_start");
         spinSFX = true;
