@@ -7,8 +7,6 @@ Code "Roll Trail"
     #lib "Player"
     #LIB "Lua"
 
-    #import "RollLibrary"
-
     #load "System.Numerics.dll"
 
     using System.Numerics;
@@ -41,32 +39,37 @@ Code "Roll Trail"
     Lua.Call("LoadLevel", "warship01")
 
     var currentState = Player.State.GetCurrentStateID<Sonic.StateID>();
-    var previousState = Player.State.GetPreviousStateID<Sonic.StateID>();
+
+    bool Rolling =
+    currentState == Sonic.StateID.StateSpin ||
+    currentState == Sonic.StateID.StateDropDash ||
+    currentState == Sonic.StateID.StateDriftDash ||
+    currentState == Sonic.StateID.StateSpinBoost ||
+    currentState == Sonic.StateID.StateSpinBoostCharge;
+
+    bool isBoomDown = Player.Input.IsDown(Player.InputActionType.PlayerSonicboom);
+    bool isBoomReleased = Player.Input.IsReleased(Player.InputActionType.PlayerSonicboom);
 
     float currentSpeed = Player.Kinematics.GetMagnitude();
+    float timeScale = Time.GetDeltaTime() / (1.0f / 60.0f); // normalize to 60fps equivalent
 
-    if (RollLibrary.Rolling)
+    if (Rolling)
     {
-        rollTime += RollLibrary.fixedDeltaTime;
+        rollTime += (Time.GetDeltaTime() * timeScale);
     }
     else
     {
         rollTime = 0.0f;
     }
 
-    if (RollLibrary.rollInputDown && currentState == Sonic.StateID.StateJump && (previousState is Sonic.StateID.StateSpinBoost or Sonic.StateID.StateDropDash or Sonic.StateID.StateDriftDash or Sonic.StateID.StateSpin))
-    {
-        RollLibrary.rollInputPressedTime = 1.0f;
-    }
-
     if (RollTrail == 1)
     {
-        if((!RollLibrary.Rolling && !RollLibrary.Jumping) || RollLibrary.rollInputReleased || RollLibrary.GetAirFlip() || currentSpeed <= 5.0f)
+        if(!Rolling || isBoomReleased || currentSpeed <= 5.0f)
         {
             Player.Effect.StopEffect("RollTrail");
             Streak = false;
         }
-        else if ((Player.Status.IsGrounded() && rollTime > 0.0085f) || (RollLibrary.rollInputPressedTime > 0.09f && RollLibrary.Jumping)) 
+        else if ((rollTime > 0.0085f && Player.Status.IsGrounded()) || (isBoomDown && !Player.Status.IsGrounded()))
         {
             if(!Streak)
             {
@@ -107,47 +110,50 @@ Code "Roll Up SFX"
 
     #lib "Player"
 
-    #import "RollLibrary"
-
     #load "System.Numerics.dll"
 
     using System.Numerics;
 
     static bool spinSFX = false;
-    static float headLandingTime = 0.0f;
+    static float preRollTime = 0.0f;
     static float preRollTargetTime = 0.0f;
+    static float timeScale = 1.0f;
 //
 {
     var currentState = Player.State.GetCurrentStateID<Sonic.StateID>();
     var previousState = Player.State.GetPreviousStateID<Sonic.StateID>();
 
-    bool currentFriendStates =
-    Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.StateHighJump ||
-    Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.StatePropellerJump ||
-    Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.StatePropellerHover ||
-    Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateGliding ||
-    Player.State.GetCurrentStateID<Tails.StateID>() == Tails.StateID.StateTailsFly;
+    bool isBoomDown = Player.Input.IsDown(Player.InputActionType.PlayerSonicboom);
+    bool isBoomReleased = Player.Input.IsReleased(Player.InputActionType.PlayerSonicboom);
+
+    bool Rolling =
+    currentState == Sonic.StateID.StateSpin ||
+    currentState == Sonic.StateID.StateDropDash ||
+    currentState == Sonic.StateID.StateDriftDash ||
+    currentState == Sonic.StateID.StateSpinBoost ||
+    currentState == Sonic.StateID.StateSpinBoostCharge;
 
     float currentSpeed = Player.Kinematics.GetMagnitude();
 
     preRollTargetTime = (1.0f / currentSpeed);
+    timeScale = Time.GetDeltaTime() / (1.0f / 60.0f); // normalize to 60fps equivalent
 
     if (currentState == Sonic.StateID.StateSpringJumpHeadLand)
     {
-        headLandingTime += RollLibrary.fixedDeltaTime;
+        preRollTime += (Time.GetDeltaTime() * timeScale);
     }
     else
     {
-        headLandingTime = 0.0f;
+        preRollTime = 0.0f;
     }
 
     // Plays Sound effect when starting roll
-    if (RollLibrary.rollInputDown && !spinSFX && (headLandingTime > preRollTargetTime  || previousState == Sonic.StateID.StateSpringJumpHeadLand && RollLibrary.Rolling || RollLibrary.Jumping))
+    if (isBoomDown && !spinSFX && (preRollTime > preRollTargetTime  || previousState == Sonic.StateID.StateSpringJumpHeadLand && Rolling || !Player.Status.IsGrounded() && Rolling))
     {
         Player.Sound.PlaySound("_sn_stomping_start");
         spinSFX = true;
     }
-    else if ((RollLibrary.rollInputReleased || currentFriendStates) && spinSFX)
+    else if ((isBoomReleased && spinSFX))
     {
         int soundHandle = Player.Sound.PlaySound("_sn_stomping_start");
         Player.Sound.StopSound(&soundHandle);
