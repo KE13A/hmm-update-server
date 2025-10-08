@@ -1,0 +1,100 @@
+Library "RollLibrary" by "KE13A"  // Rolling Parameters
+{
+    #lib "Player"
+    #lib "HMM"
+    #lib "INI"
+    
+    using System;
+    using System.Collections.Generic;
+    using System.Windows.Forms;
+    using System.IO;
+
+    #load "System.Windows.Forms.dll"
+
+
+    const Player.InputActionType actionInput = Player.InputActionType.PlayerSonicboom;
+
+    public static bool rollInputPressed;
+    public static bool rollInputDown;
+    public static bool rollInputReleased;
+
+    public static bool Rolling;
+    public static bool Rolled;
+    public static bool Jumping;
+    public static bool Jumped;
+
+    public static bool airRoll;
+    public static bool airFlip;
+
+    public void SetAirRoll(bool value)
+    {
+        airRoll = value;
+    }
+
+    public bool GetAirRoll()
+    {
+        return airRoll;
+    }
+
+    public void SetAirFlip(bool value)
+    {
+        airFlip = value;
+    }
+
+    public bool GetAirFlip()
+    {
+        return airFlip;
+    }
+
+
+    [LibraryInitializer]
+    public void Init() 
+    {
+
+    }
+    
+    [LibraryUpdate]
+    public void Update()
+    {
+        rollInputPressed = Player.Input.IsPressed(actionInput);
+        rollInputDown = Player.Input.IsDown(actionInput);
+        rollInputReleased = Player.Input.IsReleased(actionInput);
+
+        Rolling =
+        Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateSpin ||
+        Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateDropDash ||
+        Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateDriftDash ||
+        Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateSpinBoost;
+
+        Rolled =
+        Player.State.GetPreviousStateID<Sonic.StateID>() == Sonic.StateID.StateSpin ||
+        Player.State.GetPreviousStateID<Sonic.StateID>() == Sonic.StateID.StateDropDash ||
+        Player.State.GetPreviousStateID<Sonic.StateID>() == Sonic.StateID.StateDriftDash ||
+        Player.State.GetPreviousStateID<Sonic.StateID>() == Sonic.StateID.StateSpinBoost ||
+        Player.State.GetPreviousStateID<Sonic.StateID>() == Sonic.StateID.StateSpinBoostCharge;
+
+        Jumping =
+        Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateJump ||
+        Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateBaseJump ||
+        Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateBumpJump ||
+        Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateWallJump ||
+        Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateBounceJump ||
+        Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateDoubleJump ||
+        Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateFall ||
+        Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateGrindJump ||
+        Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateGrindDoubleJump ||
+        Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateJumpBoardLaunch ||
+        Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateSpinBoostCharge;
+
+        Jumped =
+        Player.State.GetPreviousStateID<Sonic.StateID>() == Sonic.StateID.StateJump ||
+        Player.State.GetPreviousStateID<Sonic.StateID>() == Sonic.StateID.StateBaseJump ||
+        Player.State.GetPreviousStateID<Sonic.StateID>() == Sonic.StateID.StateBumpJump ||
+        Player.State.GetPreviousStateID<Sonic.StateID>() == Sonic.StateID.StateWallJump ||
+        Player.State.GetPreviousStateID<Sonic.StateID>() == Sonic.StateID.StateBounceJump ||
+        Player.State.GetPreviousStateID<Sonic.StateID>() == Sonic.StateID.StateDoubleJump ||
+        Player.State.GetPreviousStateID<Sonic.StateID>() == Sonic.StateID.StateFall ||
+        Player.State.GetPreviousStateID<Sonic.StateID>() == Sonic.StateID.StateGrindJump ||
+        Player.State.GetPreviousStateID<Sonic.StateID>() == Sonic.StateID.StateGrindDoubleJump;
+    }
+}
