@@ -16,7 +16,6 @@ Code "Roll Trail"
     static bool IsConfigInitialised = false;
     static int RollTrail = 0;
     static bool Streak = false;
-    static float pressTime = 0.0f;
     static float rollTime = 0.0f;
 //
 {
@@ -45,30 +44,19 @@ Code "Roll Trail"
     var previousState = Player.State.GetPreviousStateID<Sonic.StateID>();
 
     float currentSpeed = Player.Kinematics.GetMagnitude();
-    float timeScale = Time.GetDeltaTime() / (1.0f / 60.0f); // normalize to 60fps equivalent
 
     if (RollLibrary.Rolling)
     {
-        rollTime += (Time.GetDeltaTime() * timeScale);
+        rollTime += RollLibrary.fixedDeltaTime;
     }
     else
     {
         rollTime = 0.0f;
     }
 
-
-    if (RollLibrary.rollInputDown && RollLibrary.GetAirRoll())
-    {
-        pressTime += (Time.GetDeltaTime() * timeScale);
-    }
-    else
-    {
-        pressTime = 0.0f;
-    }
-
     if (RollLibrary.rollInputDown && currentState == Sonic.StateID.StateJump && (previousState is Sonic.StateID.StateSpinBoost or Sonic.StateID.StateDropDash or Sonic.StateID.StateDriftDash or Sonic.StateID.StateSpin))
     {
-        pressTime = 1.0f;
+        RollLibrary.rollInputPressedTime = 1.0f;
     }
 
     if (RollTrail == 1)
@@ -78,7 +66,7 @@ Code "Roll Trail"
             Player.Effect.StopEffect("RollTrail");
             Streak = false;
         }
-        else if ((Player.Status.IsGrounded() && rollTime > 0.0085f) || (pressTime > 0.09f && RollLibrary.Jumping)) 
+        else if ((Player.Status.IsGrounded() && rollTime > 0.0085f) || (RollLibrary.rollInputPressedTime > 0.09f && RollLibrary.Jumping)) 
         {
             if(!Streak)
             {
@@ -128,7 +116,6 @@ Code "Roll Up SFX"
     static bool spinSFX = false;
     static float headLandingTime = 0.0f;
     static float preRollTargetTime = 0.0f;
-    static float timeScale = 1.0f;
 //
 {
     var currentState = Player.State.GetCurrentStateID<Sonic.StateID>();
@@ -144,11 +131,10 @@ Code "Roll Up SFX"
     float currentSpeed = Player.Kinematics.GetMagnitude();
 
     preRollTargetTime = (1.0f / currentSpeed);
-    timeScale = Time.GetDeltaTime() / (1.0f / 60.0f); // normalize to 60fps equivalent
 
     if (currentState == Sonic.StateID.StateSpringJumpHeadLand)
     {
-        headLandingTime += (Time.GetDeltaTime() * timeScale);
+        headLandingTime += RollLibrary.fixedDeltaTime;
     }
     else
     {
