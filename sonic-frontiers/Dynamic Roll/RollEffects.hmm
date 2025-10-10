@@ -17,6 +17,7 @@ Code "Roll Trail"
     static int RollTrail = 0;
     static bool Streak = false;
     static float rollTime = 0.0f;
+    static float airRollTime = 0.0f;
 //
 {
     if (!IsConfigInitialised)
@@ -47,17 +48,26 @@ Code "Roll Trail"
 
     if (RollLibrary.Rolling)
     {
-        rollTime += RollLibrary.fixedDeltaTime;
+        rollTime += Time.GetDeltaTime() * RollLibrary.timeScale;
     }
     else
     {
         rollTime = 0.0f;
     }
 
-    if (RollLibrary.rollInputDown && currentState == Sonic.StateID.StateJump && (previousState is Sonic.StateID.StateSpinBoost or Sonic.StateID.StateDropDash or Sonic.StateID.StateDriftDash or Sonic.StateID.StateSpin))
+    if (RollLibrary.GetAirRoll())
     {
-        RollLibrary.rollInputPressedTime = 1.0f;
+        airRollTime += Time.GetDeltaTime() * RollLibrary.timeScale;
     }
+    else
+    {
+        airRollTime = 0.0f;
+    }
+
+    // if (RollLibrary.rollInputDown && currentState == Sonic.StateID.StateJump && RollLibrary.Rolled)
+    // {
+    //     RollLibrary.rollInputPressedTime = 1.0f;
+    // }
 
     if (RollTrail == 1)
     {
@@ -66,7 +76,7 @@ Code "Roll Trail"
             Player.Effect.StopEffect("RollTrail");
             Streak = false;
         }
-        else if ((Player.Status.IsGrounded() && rollTime > 0.0085f) || (RollLibrary.rollInputPressedTime > 0.09f && RollLibrary.Jumping)) 
+        else if ((Player.Status.IsGrounded() && rollTime > 0.0085f) || (airRollTime > (0.09f * RollLibrary.timeScale) && RollLibrary.Jumping)) 
         {
             if(!Streak)
             {
@@ -134,7 +144,7 @@ Code "Roll Up SFX"
 
     if (currentState == Sonic.StateID.StateSpringJumpHeadLand)
     {
-        headLandingTime += RollLibrary.fixedDeltaTime;
+        headLandingTime += Time.GetDeltaTime() * RollLibrary.timeScale;
     }
     else
     {
