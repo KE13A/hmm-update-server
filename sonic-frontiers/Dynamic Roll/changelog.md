@@ -1,3 +1,12 @@
+# Dynamic Roll v1.2.0
+* Complete Overhaul of internal Roll systems
+* Removed Forced Bounce Ball Animations
+* Implemented dynamic Air Roll and Air Unroll animations
+* Improved Ground Rolling Animations, Roll SFX, and Roll Trail functionality
+* Improved Rolling Transitions
+* Improved Transitions Time
+* Performance improvements
+
 # Dynamic Roll v1.1.1
 * Improved Animation transitions from run and slide into rolling to be dynamic based off of speed
 * Improved SFX for into rolling transitions

@@ -34,6 +34,7 @@ Code "Dynamic Roll" in "Gameplay" by "KE13A"
         return;
     }
 
+
     // === State Redirects & Discards ===
     Player.State.Discard<Sonic.StateID>(Sonic.StateID.StateSpinBoost);
     Player.State.Discard<Amy.StateID>(Amy.StateID.StateSpinBoost);
@@ -75,20 +76,28 @@ Code "Dynamic Roll" in "Gameplay" by "KE13A"
         Player.State.Restore<Tails.StateID>(Tails.StateID.StateDropDash);           
     }
 
+
     // === Functions ===
     void SetStateToRoll()
     {
         if (currentSpeed > 0.0f)
         {
-            if (Player.Status.IsSideView())
+            if (RollLibrary.preRoll)
             {
-                Player.State.SetState(Sonic.StateID.StateSpin);
-                var vel = kinematics->Velocity;
-                kinematics->Velocity = vel;
+                Player.State.SetState(Sonic.StateID.StateSpringJumpHeadLand);
             }
             else
             {
-                Player.State.SetState(Sonic.StateID.StateDriftDash);
+                if (Player.Status.IsSideView())
+                {
+                    Player.State.SetState(Sonic.StateID.StateSpin);
+                    var vel = kinematics->Velocity;
+                    kinematics->Velocity = vel;
+                }
+                else
+                {
+                    Player.State.SetState(Sonic.StateID.StateDriftDash);
+                }
             }
         }
     }
@@ -120,6 +129,15 @@ Code "Dynamic Roll" in "Gameplay" by "KE13A"
             {
                 RollLibrary.SetAirRoll(true); 
             }
+
+            // if (Player.GetPlayerType() == Player.PlayerType.Amy && Player.State.GetPreviousStateID<Amy.StateID>() == Amy.StateID.StateHighJump)
+            // {
+            //     Player.State.SetState(Sonic.StateID.StateFall);
+            //     var vel = kinematics->Velocity;
+            //     kinematics->Velocity = vel;
+            //     Player.State.SetState(Sonic.StateID.StateSpinBoostCharge); 
+            //     RollLibrary.SetAirRoll(true);
+            // }
         }
 
         // === Entering & Exiting checks ===       
@@ -127,13 +145,13 @@ Code "Dynamic Roll" in "Gameplay" by "KE13A"
         {
             float preRollTargetTime = ((10.0f / (currentSpeed + 20)));
 
-            if (preRollTargetTime < 0.225f)
+            if (preRollTargetTime < 0.275f)
             {
                 RollLibrary.preRollTransitionTime = preRollTargetTime;
             }
             else
             {
-                RollLibrary.preRollTransitionTime = 0.225f;            
+                RollLibrary.preRollTransitionTime = 0.275f;            
             }
 
             // Re-enter Roll if Input is held while landing
@@ -150,7 +168,7 @@ Code "Dynamic Roll" in "Gameplay" by "KE13A"
             }
 
             // Grounded Rolling Transition
-            if (!RollLibrary.GetAirRoll() && RollLibrary.Rolling && (RollLibrary.rollInputPressedTime < RollLibrary.preRollTransitionTime)) //&& preRollTargetTime > 0.0f
+            if (!RollLibrary.GetAirRoll() && (RollLibrary.Rolling || currentState == Sonic.StateID.StateSpringJumpHeadLand) && (RollLibrary.rollInputPressedTime < RollLibrary.preRollTransitionTime))
             {
                 RollLibrary.preRoll = true;
             }
@@ -159,7 +177,12 @@ Code "Dynamic Roll" in "Gameplay" by "KE13A"
                 RollLibrary.preRoll = false;
             }
 
-            if (!RollLibrary.GetAirRoll() && (currentState is Sonic.StateID.StateRun or Sonic.StateID.StateSpinBoost or Sonic.StateID.StateSpinBoostCharge))
+            if (!RollLibrary.GetAirRoll() && (currentState is Sonic.StateID.StateRun or Sonic.StateID.StateSpinBoost or Sonic.StateID.StateSliding or Sonic.StateID.StateSpinBoostCharge))
+            {
+                SetStateToRoll();
+            }
+
+            if (!RollLibrary.GetAirRoll() && (previousState is Sonic.StateID.StateSliding or Sonic.StateID.StateSpinBoostCharge))
             {
                 SetStateToRoll();
             }
@@ -197,6 +220,7 @@ Code "Dynamic Roll" in "Gameplay" by "KE13A"
             }
         }
 
+        RollLibrary.preRoll = false;
         RollLibrary.SetAirRoll(false);
     }
 
@@ -209,11 +233,11 @@ Code "Dynamic Roll" in "Gameplay" by "KE13A"
             Player.State.SetState(Sonic.StateID.StateStompingDown);
             RollLibrary.SetAirRoll(false);
         }
-    }
 
-    if (RollLibrary.currentFriendsAerialState)
-    {
-        RollLibrary.SetAirRoll(false);
+        if (RollLibrary.currentFriendsAerialState || currentState == Sonic.StateID.StateBounceJump)
+        {
+            RollLibrary.SetAirRoll(false);
+        }
     }
 
 
@@ -682,30 +706,21 @@ Code "Grounded Rolling Animation Changes"
         airFlipLandTime = 0.0f
     }
 
-    // Pre Roll Animation
-    if (RollLibrary.Rolling)
-    {
-        if (RollLibrary.preRoll)
-        {
-            Player.Effect.StopAnimationEffects();
-            Player.Animation.SetAnimation("JUMP_BALL");
-        }
-        else
-        {
-            Player.Effect.PlayAnimationEffect("SPINJUMP");
-        }
-    }
-    else
-    {
-        Player.Effect.StopAnimationEffects();       
-    }
 
-    // Roll Exit Animation  
+    // Roll Entering and Exiting Animations
     if (currentState == Sonic.StateID.StateSpringJumpHeadLand)
     {
         headLandingTime += Time.GetDeltaTime() * RollLibrary.timeScale;
 
-        if (!RollLibrary.rollInputReleased && RollLibrary.Rolled)
+        // Pre Roll Animation
+        if (RollLibrary.rollInputDown && RollLibrary.preRoll)
+        {
+            Player.Effect.StopAnimationEffects();
+            Player.Animation.SetAnimation("JUMP_BALL");
+        }
+
+        // Roll Exit Animation
+        if (RollLibrary.rollInputReleased && RollLibrary.Rolled)
         {
             if (headLandingTime > 0.0f && headLandingTime < unRollTargetTime)
             {
@@ -722,6 +737,14 @@ Code "Grounded Rolling Animation Changes"
     {
         headLandingTime = 0.0f;     
     }
+
+    if (previousState == Sonic.StateID.StateSpringJumpHeadLand)
+    {
+        if (RollLibrary.rollInputReleased)
+        {
+            Player.Effect.StopAnimationEffects();
+        }
+    }
 }
 
 
@@ -732,7 +755,7 @@ Code "Aerial Rolling Animation Changes"
     #import "RollLibrary"
 
     static float preRollTargetTime = 0.095f;
-    static float releaseTimer; // = 0.085f;
+    static float releaseTimer;
     static float releaseTime = 0.0f;
     static bool airRolled = false;
     static string fallAnimation = "";
@@ -745,8 +768,6 @@ Code "Aerial Rolling Animation Changes"
     float horizontalSpeed = Player.Kinematics.GetHorizontalMagnitude();
     float currentSpeed = Player.Kinematics.GetMagnitude();
     float releaseRollTargetTime = 0.5f - (20.0f / (currentSpeed + 25.0f)); 
-
-    //Console.WriteLine($"Air Roll: {RollLibrary.GetAirRoll()}");
 
     hasStateChanged = (previousState != currentState) ? true : false;
 
@@ -767,9 +788,12 @@ Code "Aerial Rolling Animation Changes"
 
     if (hasStateChanged)
     {
-        if (!RollLibrary.GetAirRoll() && RollLibrary.currentFriendsAerialState)
+        if (!RollLibrary.GetAirRoll())
         {
-            Player.Effect.StopAnimationEffects();
+            if (Player.GetPlayerType() != Player.PlayerType.Sonic && RollLibrary.currentFriendsAerialState)
+            {
+                Player.Effect.StopAnimationEffects();
+            }
         }
 
         RollLibrary.SetAirFlip(false);

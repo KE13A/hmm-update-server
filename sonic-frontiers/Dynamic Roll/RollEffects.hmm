@@ -125,7 +125,7 @@ Code "Roll Up SFX"
     var previousState = Player.State.GetPreviousStateID<Sonic.StateID>();
 
     // Plays Sound effect when starting roll
-    if (RollLibrary.rollInputDown && !spinSFX && ((RollLibrary.Rolling && RollLibrary.rollInputPressedTime > (RollLibrary.preRollTransitionTime * 2.0f/3.0f)) || (RollLibrary.GetAirRoll() && !RollLibrary.currentFriendsAerialState)))
+    if (RollLibrary.rollInputDown && !spinSFX && (((currentState == Sonic.StateID.StateSpringJumpHeadLand || RollLibrary.Rolling) && RollLibrary.rollInputPressedTime > (RollLibrary.preRollTransitionTime * 1.0f/2.0f)) || (RollLibrary.GetAirRoll() && !RollLibrary.currentFriendsAerialState)))
     {
         Player.Sound.PlaySound("_sn_stomping_start");
         spinSFX = true;
