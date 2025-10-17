@@ -27,13 +27,34 @@ Library "RollLibrary" by "KE13A"  // Rolling Parameters
     public static bool Jumping;
     public static bool Jumped;
 
+    public static bool preRoll;
+    public static float preRollTransitionTime;
+
     public static bool airRoll;
     public static bool airFlip;
+
+    public static bool currentFriendsAerialState;
+    public static bool previousFriendAerialStates;
+
+    public static bool BoomKickOutOfCombat;
 
     public void SetRollInputPressedTime(float value) {rollInputPressedTime = value;}
     public float GetRollInputPressedTime() {return rollInputPressedTime;}
 
-    public void SetAirRoll(bool value) {airRoll = value;}
+    public void SetAirRoll(bool value)
+    {
+        if (value == true)
+        {                    
+            Player.State.Discard<Sonic.StateID>(Sonic.StateID.StateSpinBoostCharge);
+            Player.State.Discard<Amy.StateID>(Amy.StateID.StateSpinBoostCharge);
+            Player.State.Discard<Knuckles.StateID>(Knuckles.StateID.StateSpinBoostCharge);
+            Player.State.Discard<Tails.StateID>(Tails.StateID.StateSpinBoostCharge);
+
+            Player.State.SetState(Sonic.StateID.StateSpinBoostCharge); 
+        }
+
+        airRoll = value;
+    }
     public bool GetAirRoll() {return airRoll;}
 
     public void SetAirFlip(bool value) {airFlip = value;}
@@ -100,5 +121,31 @@ Library "RollLibrary" by "KE13A"  // Rolling Parameters
         Player.State.GetPreviousStateID<Sonic.StateID>() == Sonic.StateID.StateGrindDoubleJump ||
         Player.State.GetPreviousStateID<Sonic.StateID>() == Sonic.StateID.StateJumpBoardLaunch ||
         Player.State.GetPreviousStateID<Sonic.StateID>() == Sonic.StateID.StateSpinBoostCharge;
+
+        BoomKickOutOfCombat =
+        Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateSonicBoomKick &&
+        (Player.Status.GetLockOnTarget() == null || 
+        GameObject.GetGOC(Player.Status.GetLockOnTarget(), "GOCHealth") == null);
+
+
+        currentFriendsAerialState =
+        Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.StateHighJump ||
+        Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.StatePropellerJump ||
+        Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.StatePropellerHover ||
+        Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.AmyStateStompingDown ||
+        Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateGliding ||
+        Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.KnucklesStateStompingDown ||
+        Player.State.GetCurrentStateID<Tails.StateID>() == Tails.StateID.StateTailsFly ||
+        Player.State.GetCurrentStateID<Tails.StateID>() == Tails.StateID.TailsStateStompingDown;
+
+        previousFriendAerialStates =
+        Player.State.GetPreviousStateID<Amy.StateID>() == Amy.StateID.StateHighJump ||
+        Player.State.GetPreviousStateID<Amy.StateID>() == Amy.StateID.StatePropellerJump ||
+        Player.State.GetPreviousStateID<Amy.StateID>() == Amy.StateID.StatePropellerHover ||
+        Player.State.GetPreviousStateID<Amy.StateID>() == Amy.StateID.AmyStateStompingDown ||
+        Player.State.GetPreviousStateID<Knuckles.StateID>() == Knuckles.StateID.StateGliding ||
+        Player.State.GetPreviousStateID<Knuckles.StateID>() == Knuckles.StateID.KnucklesStateStompingDown ||
+        Player.State.GetPreviousStateID<Tails.StateID>() == Tails.StateID.StateTailsFly ||
+        Player.State.GetPreviousStateID<Tails.StateID>() == Tails.StateID.TailsStateStompingDown;
     }
 }
