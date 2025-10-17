@@ -1,4 +1,7 @@
-add Roll.hmm
-add RollEffects.hmm
-add Lib.hmm
-add mod.ini
+delete changelog.md
+delete mod_version.ini
+delete mod_files.txt
+Roll.hmm
+RollEffects.hmm
+Lib.hmm
+mod.ini
