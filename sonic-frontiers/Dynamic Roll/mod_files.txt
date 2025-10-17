@@ -1,5 +1,6 @@
 delete changelog.md
 delete mod_version.ini
+delete mod_files.txt
 add Roll.hmm
 add RollEffects.hmm
 add Lib.hmm
