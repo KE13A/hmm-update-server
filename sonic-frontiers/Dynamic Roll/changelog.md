@@ -1,3 +1,6 @@
+# Dynamic Roll v1.2.1
+* mod.ini hotfix
+
 # Dynamic Roll v1.2.0
 * Complete Overhaul of internal Roll systems
 * Removed Forced Bounce Ball Animations
