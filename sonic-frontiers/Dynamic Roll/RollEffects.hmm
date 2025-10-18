@@ -5,7 +5,7 @@ Code "Roll Trail"
     #lib "HMM"
     #lib "INI"
     #lib "Player"
-    #LIB "Lua"
+    #lib "Lua"
 
     #import "RollLibrary"
 
