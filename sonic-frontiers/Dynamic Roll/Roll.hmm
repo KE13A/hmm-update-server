@@ -36,15 +36,15 @@ Code "Dynamic Roll" in "Gameplay" by "KE13A"
 
 
     // === State Redirects & Discards ===
-    Player.State.Discard<Sonic.StateID>(Sonic.StateID.StateSpinBoost);
-    Player.State.Discard<Amy.StateID>(Amy.StateID.StateSpinBoost);
-    Player.State.Discard<Knuckles.StateID>(Knuckles.StateID.StateSpinBoost);
-    Player.State.Discard<Tails.StateID>(Tails.StateID.StateSpinBoost);
-
     Player.State.Discard<Sonic.StateID>(Sonic.StateID.StateSpinBoostCharge);
     Player.State.Discard<Amy.StateID>(Amy.StateID.StateSpinBoostCharge);
     Player.State.Discard<Knuckles.StateID>(Knuckles.StateID.StateSpinBoostCharge);
     Player.State.Discard<Tails.StateID>(Tails.StateID.StateSpinBoostCharge);
+
+    // Player.State.Discard<Sonic.StateID>(Sonic.StateID.StateSpinBoost);
+    // Player.State.Discard<Amy.StateID>(Amy.StateID.StateSpinBoost);
+    // Player.State.Discard<Knuckles.StateID>(Knuckles.StateID.StateSpinBoost);
+    // Player.State.Discard<Tails.StateID>(Tails.StateID.StateSpinBoost);
 
     if (Player.Status.IsSideView())
     {
@@ -107,7 +107,7 @@ Code "Dynamic Roll" in "Gameplay" by "KE13A"
     if (RollLibrary.rollInputPressed)
     {
         // Airborne Roll
-        if (!Player.Status.IsGrounded() && (RollLibrary.Jumping || RollLibrary.BoomKickOutOfCombat))
+        if (!Player.Status.IsGroundedSpecial() && (RollLibrary.Jumping || RollLibrary.BoomKickOutOfCombat))
         {
             RollLibrary.SetAirRoll(true);
         }
@@ -118,7 +118,7 @@ Code "Dynamic Roll" in "Gameplay" by "KE13A"
     if (RollLibrary.rollInputDown)
     {
         // Airborne Roll
-        if (!Player.Status.IsGrounded() && (currentState is Sonic.StateID.StateJump or Sonic.StateID.StateFall))
+        if (!Player.Status.IsGroundedSpecial() && (currentState is Sonic.StateID.StateJump or Sonic.StateID.StateFall))
         {
             if (RollLibrary.Rolled)
             {
@@ -780,7 +780,7 @@ Code "Aerial Rolling Animation Changes"
         releaseTimer = 0.085f;            
     }
 
-    if (Player.Status.IsGrounded())
+    if (Player.Status.IsGroundedSpecial())
     {
         releaseTime = 0.0f;
         return;
@@ -805,7 +805,20 @@ Code "Aerial Rolling Animation Changes"
     {
         if (!RollLibrary.GetAirFlip())
         {
-            fallAnimation = (horizontalSpeed >= 45.0f) ? "BUMP_JUMP_FALL" : "FALL"; //BUMP_JUMP_FALL DIVE_DAMAGE
+            // if (horizontalSpeed < 45.0f)
+            // {
+            //     fallAnimation = "FALL";
+            // }
+            // else if (horizontalSpeed > 45.0f && horizontalSpeed < 70.0f)
+            // {
+            //     fallAnimation = "BUMP_JUMP_FALL";
+            // }
+            // else
+            // {
+            //     fallAnimation = "SELECTJUMP_MISS_LOOP";
+            // }
+ 
+            fallAnimation = (horizontalSpeed >= 70.0f) ? "SELECTJUMP_MISS_LOOP" : "FALL"; // BUMP_JUMP_FALL or BUMP_JUMP_FALL DIVE_DAMAGE
             releaseTime = releaseTimer;
             airRolled = false;
             RollLibrary.SetAirFlip(true);

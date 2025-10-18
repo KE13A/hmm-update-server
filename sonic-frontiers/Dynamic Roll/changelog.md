@@ -1,3 +1,7 @@
+# Dynamic Roll v1.2.2
+* Spinboost state hotfix
+* Improved animation for unrolling at high speeds
+
 # Dynamic Roll v1.2.1
 * mod.ini hotfix
 
