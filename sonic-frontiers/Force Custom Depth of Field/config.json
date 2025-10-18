@@ -1,0 +1,66 @@
+{
+	"Groups": [
+		{
+			"Name": "Main",
+			"DisplayName": "Depth of Field Values",
+			"Elements": [
+				{
+					"Name": "dofNearStart",
+					"DisplayName": "Foreground Start Value",
+					"Description": [
+						"Near depth where foreground blur begins"
+					],
+					"Type":"int",
+					"MinValue":0,
+					"MaxValue":4000,
+					"DefaultValue":0
+				},
+				{
+					"Name": "dofNearEnd",
+					"DisplayName": "Foreground End Value",
+					"Description": [
+						"Near depth where foreground blur ends"
+					],
+					"Type":"int",
+					"MinValue":0,
+					"MaxValue":4000,
+					"DefaultValue":3
+				},
+				{
+					"Name": "dofFarStart",
+					"DisplayName": "Background Start Value",
+					"Description": [
+						"Far depth where background blur starts"
+					],
+					"Type":"int",
+					"MinValue":0,
+					"MaxValue":4000,
+					"DefaultValue":50
+				},
+				{
+					"Name": "dofFarEnd",
+					"DisplayName": "Background End Value",
+					"Description": [
+						"Far depth max blur"
+					],
+					"Type":"int",
+					"MinValue":0,
+					"MaxValue":4000,
+					"DefaultValue":4000
+				},
+				{
+					"Name": "dofSamples",
+					"DisplayName": "Sample Count",
+					"Description": [
+						"Number of bokeh samples. In other terms, how accurately the blur is calculated. (Higher = smoother but more performance-heavy.)"
+					],
+					"Type":"int",
+					"MinValue":0,
+					"MaxValue":100,
+					"DefaultValue":20
+				}
+			]
+		}
+	],
+	"IniFile": "config.ini"
+ }
