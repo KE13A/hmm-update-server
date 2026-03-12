@@ -1,0 +1,236 @@
+{
+   "Groups": [
+      {
+         "Name": "main",
+         "DisplayName": "Customization",
+         "Elements": [
+ 
+            {
+               "Name": "IncludeDir0",
+               "DisplayName": "Enable HD Sonic",
+               "Description": [
+                  "Enables HD Sonic. Select your preferred quill length and animation set."
+               ],
+               "Type": "ModelTypesNum",
+		       "MinValue": null,
+		       "MaxValue": null,
+               "DefaultValue": "hdsonic"
+            },
+            {
+               "Name": "IncludeDir1",
+               "DisplayName": "Enable HD Amy",
+               "Description": [
+                  "Enables HD Amy."
+               ],
+               "Type": "HDAmy",
+		       "MinValue": null,
+		       "MaxValue": null,
+               "DefaultValue": "hdamy"
+            },
+            {
+               "Name": "IncludeDir2",
+               "DisplayName": "Enable HD Knuckles",
+               "Description": [
+                  "Enables HD Knuckles."
+               ],
+               "Type": "HDKnuckles",
+		       "MinValue": null,
+		       "MaxValue": null,
+               "DefaultValue": "hdknuckles"
+            },
+            {
+               "Name": "IncludeDir3",
+               "DisplayName": "Enable HD Tails",
+               "Description": [
+                  "Enables HD Tails."
+               ],
+               "Type": "HDTails",
+		       "MinValue": null,
+		       "MaxValue": null,
+               "DefaultValue": "hdtails_cyber"
+            },
+            {
+               "Name": "IncludeDir4",
+               "DisplayName": "Enable HD Super Sonic",
+               "Description": [
+                  "Enables HD Super Sonic."
+               ],
+               "Type": "HDSSonic",
+		       "MinValue": null,
+		       "MaxValue": null,
+               "DefaultValue": "hdssonic"
+            }
+         ]
+      }
+   ],
+   
+   "Enums": {
+
+      "ModelTypesNum": 
+	  [
+         {
+            "DisplayName": "Enabled",
+            "Value": "hdsonic",
+            "Description": [
+               "Enables HD Model. Quills are default, vanilla length. Default, vanilla animations."
+            ]
+         },
+
+         {
+            "DisplayName": "Enabled + Impact Animations",
+            "Value": "hdsonic_impact",
+            "Description": [
+               "Enables HD Model. Quills are default, vanilla length. ChaosX's Impact Sonic animations."
+            ]
+         },
+
+         {
+            "DisplayName": "Enabled + Meloh Animations",
+            "Value": "hdsonic_meloh",
+            "Description": [
+               "Enables HD Model. Quills are default, vanilla length. Meloh's Reanimated Sonic animations."
+            ]
+         },
+
+         {
+            "DisplayName": "Long Quill + Default Animations",
+            "Value": "longquill_default",
+            "Description": [
+               "Enables HD Model. Quills are Unleashed/Gens length. Default, vanilla animations."
+            ]
+         },
+
+         {
+            "DisplayName": "Long Quill + Impact Animations",
+            "Value": "longquill_impact",
+            "Description": [
+               "Enables HD Model. Quills are Unleashed/Gens length. ChaosX's Impact Sonic animations."
+            ]
+         },
+
+         {
+            "DisplayName": "Long Quill + Meloh Animations",
+            "Value": "longquill_meloh",
+            "Description": [
+               "Enables HD Model. Quills are Unleashed/Gens length. Meloh's Reanimated Sonic animations."
+            ]
+         },
+
+         {
+            "DisplayName": "Long Quill + Flow Animations",
+            "Value": "longquill_flow",
+            "Description": [
+               "Enables HD Model. Quills are Unleashed/Gens length. Custom collection of Sonic animations."
+            ]
+         },
+
+         {
+            "DisplayName": "Disabled",
+            "Value": ".",
+            "Description": [
+               "Disabled"
+            ]
+         }
+      ],
+      "HDAmy":
+      [
+         {
+            "DisplayName":"Enabled with Cyber Ghost",
+            "Value":"hdamy_cyber",
+            "Description":[
+               "Enables HD Model with Cyber Ghost"
+            ]
+         },
+         {
+            "DisplayName":"Enabled without Cyber Ghost",
+            "Value":"hdamy",
+            "Description":[
+               "Enables HD Model and removes Cyber Ghost"
+            ]
+         },
+         {
+            "DisplayName":"Disabled",
+            "Value":".",
+            "Description":[
+               "Disabled"
+            ]
+         }
+      ],
+      "HDKnuckles":
+      [
+         {
+            "DisplayName":"Enabled with Cyber Ghost",
+            "Value":"hdknuckles_cyber",
+            "Description":[
+               "Enables HD Model with Cyber Ghost"
+            ]
+         },
+         {
+            "DisplayName":"Enabled without Cyber Ghost",
+            "Value":"hdknuckles",
+            "Description":[
+               "Enables HD Model and removes Cyber Ghost"
+            ]
+         },
+         {
+            "DisplayName":"Disabled",
+            "Value":".",
+            "Description":[
+               "Disabled"
+            ]
+         }
+      ],
+      "HDTails":
+      [
+         {
+            "DisplayName":"Enabled with Cyber Ghost",
+            "Value":"hdtails_cyber",
+            "Description":[
+               "Enables HD Model with Cyber Ghost"
+            ]
+         },
+         {
+            "DisplayName":"Enabled without Cyber Ghost",
+            "Value":"hdtails",
+            "Description":[
+               "Enables HD Model and removes Cyber Ghost"
+            ]
+         },
+         {
+            "DisplayName":"Disabled",
+            "Value":".",
+            "Description":[
+               "Disabled"
+            ]
+         }
+      ],
+      "HDSSonic":
+      [
+
+         {
+            "DisplayName":"Enabled",
+            "Value":"hdssonic",
+            "Description":[
+               "Enabled"
+            ]
+         },
+
+         {
+            "DisplayName": "Enabled + Meloh Animations",
+            "Value": "hdssonic_meloh",
+            "Description": [
+               "Enables HD Model. Meloh's Reanimated Sonic animations."
+            ]
+         },
+
+         {
+            "DisplayName":"Disabled",
+            "Value":".",
+            "Description":[
+               "Disabled"
+            ]
+         }
+      ]
+	},
+   "IniFile": "mod.ini"
+}
