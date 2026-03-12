@@ -1,0 +1,89 @@
+add README.md
+add options.json
+
+add hdamy/raw/character/amy.pac
+add hdamy/raw/character/amy_orig.pac
+add hdamy/raw/character/amyP.pac
+
+add hdamy_cyber/hdamy/raw/character/amy.pac
+add hdamy_cyber/hdamy/raw/character/amy_orig.pac
+add hdamy_cyber/hdamy/raw/character/amyP.pac
+add hdamy_cyber/raw/character/amy.pac
+add hdamy_cyber/raw/character/amy_orig.pac
+add hdamy_cyber/raw/character/amyP.pac
+
+add hdknuckles/raw/character/knuckles.pac
+add hdknuckles/raw/character/knuckles_orig.pac
+add hdknuckles/raw/character/knucklesP.pac
+
+add hdknuckles_cyber/raw/character/knuckles.pac
+add hdknuckles_cyber/raw/character/knuckles_orig.pac
+add hdknuckles_cyber/raw/character/knucklesP.pac
+
+add hdsonic/raw/character/sonic.pac
+add hdsonic/raw/character/sonic_birthday.pac
+add hdsonic/raw/character/sonic_crown.pac
+add hdsonic/raw/character/soniccyber.pac
+add hdsonic/raw/dlc/dlccrm/dlccrm.pac
+
+add hdsonic_impact/raw/character/sonic.pac
+add hdsonic_impact/raw/character/sonic_birthday.pac
+add hdsonic_impact/raw/character/sonic_crown.pac
+add hdsonic_impact/raw/character/soniccyber.pac
+add hdsonic_impact/raw/dlc/dlccrm/dlccrm.pac
+
+add hdsonic_meloh/raw/character/sonic.pac
+add hdsonic_meloh/raw/character/sonic_birthday.pac
+add hdsonic_meloh/raw/character/sonic_crown.pac
+add hdsonic_meloh/raw/character/soniccyber.pac
+add hdsonic_meloh/raw/dlc/dlccrm/dlccrm.pac
+
+add hdssonic/raw/character/supersonic.pac
+add hdssonic/raw/character/supersonic2.pac
+add hdssonic/raw/dlc/dlccrm/dlccrm.pac
+add hdssonic/raw/dlc/dlcddx/dlcddx.pac
+add hdssonic/raw/dlc/dlcholoA/dlcholoA.pac
+add hdssonic/raw/dlc/dlcmhr/dlcmhr_costume_airou.pac
+add hdssonic/raw/dlc/dlcmhr/dlcmhr_costume_hunter.pac
+add hdssonic/raw/dlc/dlcxmas/dlcxmas.pac
+add hdssonic/raw/EffectCommon.pac
+
+add hdssonic_meloh/raw/character/supersonic.pac
+add hdssonic_meloh/raw/character/supersonic2.pac
+
+add hdtails/raw/character/tails.pac
+add hdtails/raw/character/tails_orig.pac
+add hdtails/raw/character/tailsP.pac
+
+add hdtails_cyber/raw/character/tails.pac
+add hdtails_cyber/raw/character/tails_orig.pac
+add hdtails_cyber/raw/character/tailsP.pac
+
+add longquill_default/raw/character/sonic.pac
+add longquill_default/raw/character/sonic_birthday.pac
+add longquill_default/raw/character/sonic_crown.pac
+add longquill_default/raw/character/soniccyber.pac
+add longquill_default/raw/dlc/dlccrm/dlccrm.pac
+
+add longquill_flow/raw/character/sonic.pac
+add longquill_flow/raw/character/sonic_birthday.pac
+add longquill_flow/raw/character/sonic_crown.pac
+add longquill_flow/raw/character/soniccyber.pac
+add longquill_flow/raw/dlc/dlccrm/dlccrm.pac
+add longquill_flow/raw/event/scene/bo1xxx.pac
+
+add longquill_impact/raw/character/sonic.pac
+add longquill_impact/raw/character/sonic_birthday.pac
+add longquill_impact/raw/character/sonic_crown.pac
+add longquill_impact/raw/character/soniccyber.pac
+add longquill_impact/raw/dlc/dlccrm/dlccrm.pac
+
+add longquill_meloh/raw/character/sonic.pac
+add longquill_meloh/raw/character/sonic_birthday.pac
+add longquill_meloh/raw/character/sonic_crown.pac
+add longquill_meloh/raw/character/soniccyber.pac
+add longquill_meloh/raw/dlc/dlccrm/dlccrm.pac
+
+add main/raw/misc/trr_common_texture.pac
+
+add mod.ini
