@@ -1,3 +1,7 @@
+# Dynamic Roll v1.2.4
+* Movement lock at high speeds bugfix
+* Added dynamic speed for Drop Dash in custom physics
+
 # Dynamic Roll v1.2.3
 * Lib reference hotfix
 
