@@ -36,22 +36,48 @@ Code "Improved Rolling Physics"
 
 	var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
 
-    float rollUP = Player.Kinematics.GetVerticalMagnitude()
+    var kinematics = Player.Kinematics.Get();
+    var vertMag = Player.Kinematics.GetVerticalMagnitude();
+    var horzMag = Player.Kinematics.GetHorizontalMagnitude();
 
-	if (SonicParametersInfo.pData == null)
+	if (SonicParametersInfo.pData == null || kinematics == null)
     {
 		return;
-    }
-    
-    var kinematics = Player.Kinematics.Get();
-    
-    if (kinematics == null)
+    } 
+
+    // Drop Dash Adjustments
+    RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.maxChargeTime, 2.5f);
+    RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.minDashSpeed, horzMag);
+    RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.minDashSpeedMax, horzMag);
+
+    if (horzMag <= 20)
     {
-        return;
+        RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.maxDashSpeed, (horzMag + 100));
+        RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.maxDashSpeedMax, (horzMag + 100));
+    }
+    else if (horzMag <= 40)
+    {
+        RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.maxDashSpeed, (horzMag + 80));
+        RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.maxDashSpeedMax, (horzMag + 80));
+    }
+    else if (horzMag <= 60)
+    {
+        RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.maxDashSpeed, (horzMag + 60));
+        RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.maxDashSpeedMax, (horzMag + 60));
+    }
+    else if (horzMag <= 80)
+    {
+        RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.maxDashSpeed, (horzMag + 50));
+        RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.maxDashSpeedMax, (horzMag + 50));
+    }
+    else
+    {
+        RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.maxDashSpeed, (horzMag + 40));
+        RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.maxDashSpeedMax, (horzMag + 40));
     }
 
     //Faster Downhill Rolling Speeds & Slower Rolling Uphill Speeds
-    if (Vector3.Transform(Vector3.UnitY, kinematics->Rotation).Y < 0.98f && rollUP < 5.0f)
+    if (Vector3.Transform(Vector3.UnitY, kinematics->Rotation).Y < 0.98f && vertMag < 5.0f)
     {
         RFL_SET_CONTEXTUAL_PLAYER_PARAM(SonicParametersInfo, driftDash.brake, -4.0f);
         RFL_SET_CONTEXTUAL_PLAYER_PARAM(SonicParametersInfo, dropDash.brake, -4.0f);

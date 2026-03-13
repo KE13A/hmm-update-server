@@ -472,6 +472,103 @@ Code "Allow Rolling During Auto Run"
 }
 
 
+Code "Fix Movement Locks"
+//
+	#include "Reflection" noemit
+
+	#lib "Reflection"
+	#lib "SonicParameters"
+//
+{
+    var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
+
+	if (SonicParametersInfo.pData == null)
+    {
+		return;
+    }
+
+    RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.outOfControlSpeed, 999f);
+    RFL_SET_PARAM(SonicParametersInfo, forwardView.driftDash.outOfControlSpeed, 999f);
+}
+
+
+// Code "Dropping n' Dashing" By "Lex"
+// //
+// 	#include "Reflection" noemit
+
+// 	#lib "Reflection"
+// 	#lib "SonicParameters"
+// //
+// {
+// 	var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
+
+// 	if (SonicParametersInfo.pData == null)
+// 		return;
+    
+//     float DashReady = Player.Kinematics.GetHorizontalMagnitude()
+
+//     if ((DashReady <= 50.0f && !Player.Status.IsSideView()) || (DashReady <= 33.0f && Player.Status.IsSideView()))
+//     {
+//         RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.minDashSpeed, 50.0f);
+// 	    RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.minDashSpeedMax, 50.0f);
+// 	    RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.maxDashSpeed, 50.0f);
+// 	    RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.maxDashSpeedMax, 50.0f);
+// 	    RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.tumbleDashSpeed, 50.0f);
+// 	    RFL_SET_PARAM(SonicParametersInfo, cyberspace.dropDash.minDashSpeed, 50.0f);
+// 	    RFL_SET_PARAM(SonicParametersInfo, cyberspace.dropDash.minDashSpeedMax, 50.0f);
+// 	    RFL_SET_PARAM(SonicParametersInfo, cyberspace.dropDash.maxDashSpeed, 50.0f);
+// 	    RFL_SET_PARAM(SonicParametersInfo, cyberspace.dropDash.maxDashSpeedMax, 50.0f);
+// 	    RFL_SET_PARAM(SonicParametersInfo, cyberspace.dropDash.tumbleDashSpeed, 50.0f);
+// 	    RFL_SET_PARAM(SonicParametersInfo, cyberspaceSV.dropDash.minDashSpeed, 33.0f);
+// 	    RFL_SET_PARAM(SonicParametersInfo, cyberspaceSV.dropDash.minDashSpeedMax, 33.0f);
+// 	    RFL_SET_PARAM(SonicParametersInfo, cyberspaceSV.dropDash.maxDashSpeed, 33.0f);
+// 	    RFL_SET_PARAM(SonicParametersInfo, cyberspaceSV.dropDash.maxDashSpeedMax, 33.0f);
+// 	    RFL_SET_PARAM(SonicParametersInfo, cyberspaceSV.dropDash.tumbleDashSpeed, 33.0f);
+//     }
+//     else
+//     {
+//         RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.minDashSpeed, DashReady);
+// 	    RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.minDashSpeedMax, DashReady);
+// 	    RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.maxDashSpeed, DashReady);
+// 	    RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.maxDashSpeedMax, DashReady);
+// 	    RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.tumbleDashSpeed, DashReady);
+// 	    RFL_SET_PARAM(SonicParametersInfo, cyberspace.dropDash.minDashSpeed, DashReady);
+// 	    RFL_SET_PARAM(SonicParametersInfo, cyberspace.dropDash.minDashSpeedMax, DashReady);
+// 	    RFL_SET_PARAM(SonicParametersInfo, cyberspace.dropDash.maxDashSpeed, DashReady);
+// 	    RFL_SET_PARAM(SonicParametersInfo, cyberspace.dropDash.maxDashSpeedMax, DashReady);
+// 	    RFL_SET_PARAM(SonicParametersInfo, cyberspace.dropDash.tumbleDashSpeed, DashReady);
+// 	    RFL_SET_PARAM(SonicParametersInfo, cyberspaceSV.dropDash.minDashSpeed, DashReady);
+// 	    RFL_SET_PARAM(SonicParametersInfo, cyberspaceSV.dropDash.minDashSpeedMax, DashReady);
+// 	    RFL_SET_PARAM(SonicParametersInfo, cyberspaceSV.dropDash.maxDashSpeed, DashReady);
+// 	    RFL_SET_PARAM(SonicParametersInfo, cyberspaceSV.dropDash.maxDashSpeedMax, DashReady);
+// 	    RFL_SET_PARAM(SonicParametersInfo, cyberspaceSV.dropDash.tumbleDashSpeed, DashReady);
+//     }
+// }
+
+
+// Code "Dynamic Ballin" By "Lex"
+// //
+// 	#include "Reflection" noemit
+
+// 	#lib "Reflection"
+// 	#lib "SonicParameters"
+// //
+// {
+// 	var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
+
+// 	if (SonicParametersInfo.pData == null)
+// 		return;
+
+//     float SpinSmack = Player.Kinematics.GetMagnitude()
+
+// 	RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.spinDash.velocity.Y, 5.0f);
+// 	RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.spinDash.velocity.Z, SpinSmack);
+//     RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.spinDash.damageRate, SpinSmack*0.08f);
+
+//     RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.spinAttack.damageRate, SpinSmack*0.08f);
+
+// }
+
 //===========================================================================================================
 //Combat Fuctionality
 
