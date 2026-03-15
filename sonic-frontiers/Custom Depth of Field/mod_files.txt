@@ -1,5 +1,2 @@
 add code.hmm
-add config.ini
-add config.json
-add README.md
 add mod.ini

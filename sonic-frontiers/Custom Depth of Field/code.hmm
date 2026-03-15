@@ -4,6 +4,8 @@ Code "Force Depth of Field on far Objects" in "Graphics/Quality" by "KE13A" does
     #lib "INI"
 
     static bool IsConfigInitialised = false;
+    static bool IsHookInitialised = false;
+    
     static int dofNearStartInt = 0; // Near depth where blur begins
     static int dofNearEndInt = 3; // Near depth where blur ends
     static int dofFarStartInt = 50; // Far depth where blur starts
@@ -18,7 +20,7 @@ Code "Force Depth of Field on far Objects" in "Graphics/Quality" by "KE13A" does
 
     if (!IsConfigInitialised)
     {
-        var modsQuery = HMM.FindModsByName("Force Custom Depth of Field");
+        var modsQuery = HMM.FindModsByName("Custom Depth of Field");
         if (modsQuery.Count == 1)
         {
             string modConfigIniPath = System.IO.Path.Combine(modsQuery[0].Path, "config.ini");
@@ -40,58 +42,73 @@ Code "Force Depth of Field on far Objects" in "Graphics/Quality" by "KE13A" does
     }
 
 
-    // FxDOFParameter
-    WriteAsmHook
-    (
-        $@"
-            ; Enable DOF
-            mov  byte ptr [r8], 1
-
-            ; Set foreground bokeh depth to end at 3 and start at 0
-            mov  dword ptr [r8+4],  {BitConverter.ToInt32(BitConverter.GetBytes(dofNearStart), 0)}
-            mov  dword ptr [r8+8],  {BitConverter.ToInt32(BitConverter.GetBytes(dofNearEnd), 0)}
-
-            ; Set background bokeh depth to start at 4000 and end at 50
-            mov  dword ptr [r8+12], {BitConverter.ToInt32(BitConverter.GetBytes(dofFarStart), 0)}
-            mov  dword ptr [r8+16], {BitConverter.ToInt32(BitConverter.GetBytes(dofFarEnd), 0)}
-
-            ; Increase sample count to 20
-            mov  dword ptr [r8+32], {dofSamples}
-
-            ; Set render target size to full
-            mov  byte ptr [r8+48], 0
-        ",
-
-        /* 0x1482689B8 */
-        ScanSignature
+    if (!IsHookInitialised)
+    {
+        // FxDOFParameter
+        WriteAsmHook
         (
-            "\x45\x0F\x10\x08\x89\x84\x24\x90\x00\x00\x00",
-            "xxxxxxxxxxx"
-        ),
+            $@"
+                ; preserve register used by hook
+                push rax
 
-        HookBehavior.After
-    );
+                ; verify r8 pointer is valid
+                test r8,r8
+                jz skip
 
-    // FxRenderTargetSetting
-    WriteAsmHook
-    (
-        $@"
-            ; Original code
-            lea rbp, [rsp-400h]
-            sub rsp, 500h
-            mov r15, rcx
+                ; enable DOF
+                mov  byte ptr [r8],1
 
-            ; Set render target size to full
-            mov dword ptr [rdx], 0
-        ",
+                ; foreground blur
+                mov  dword ptr [r8+4],  {BitConverter.ToInt32(BitConverter.GetBytes(dofNearStart),0)}
+                mov  dword ptr [r8+8],  {BitConverter.ToInt32(BitConverter.GetBytes(dofNearEnd),0)}
 
-        /* 0x140B83134 */
-        ScanSignature
+                ; background blur
+                mov  dword ptr [r8+12], {BitConverter.ToInt32(BitConverter.GetBytes(dofFarStart),0)}
+                mov  dword ptr [r8+16], {BitConverter.ToInt32(BitConverter.GetBytes(dofFarEnd),0)}
+
+                ; sample count
+                mov  dword ptr [r8+32], {dofSamples}
+
+                ; render target size
+                mov  byte ptr [r8+48],0
+
+            skip:
+                pop rax
+            ",
+
+            /* 0x1482689B8 */
+            ScanSignature
+            (
+                "\x45\x0F\x10\x08\x89\x84\x24\x90\x00\x00\x00",
+                "xxxxxxxxxxx"
+            ),
+
+            HookBehavior.After
+        );
+
+        // FxRenderTargetSetting
+        WriteAsmHook
         (
-            "\x48\x8D\xAC\x24\x00\xFC\xFF\xFF\x48\x81\xEC\x00\x05\x00\x00\x4C\x8B\xF9",
-            "xxxxxxxxxxxxxxxxxx"
-        ),
+            $@"
+                ; original instructions
+                lea rbp,[rsp-400h]
+                sub rsp,500h
+                mov r15,rcx
 
-        HookBehavior.Replace
-    );
+                ; force full resolution
+                mov dword ptr [rdx],0
+            ",
+
+            /* 0x140B83134 */
+            ScanSignature
+            (
+                "\x48\x8D\xAC\x24\x00\xFC\xFF\xFF\x48\x81\xEC\x00\x05\x00\x00\x4C\x8B\xF9",
+                "xxxxxxxxxxxxxxxxxx"
+            ),
+
+            HookBehavior.Replace
+        );
+
+        IsHookInitialised = true;
+    }
 }
