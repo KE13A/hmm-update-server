@@ -34,6 +34,18 @@ Code "Dynamic Roll" in "Gameplay" by "KE13A"
         return;
     }
 
+    if (IS_WORLD_FLAG(IsAutoRun))
+    {
+        if (RollLibrary.Rolling)
+        {
+            Player.State.SetState(Sonic.StateID.StateSpringJumpHeadLand);
+        }
+        else
+        {
+            return;
+        }
+    }
+
 
     // === State Redirects & Discards ===
     Player.State.Discard<Sonic.StateID>(Sonic.StateID.StateSpinBoostCharge);
@@ -41,25 +53,10 @@ Code "Dynamic Roll" in "Gameplay" by "KE13A"
     Player.State.Discard<Knuckles.StateID>(Knuckles.StateID.StateSpinBoostCharge);
     Player.State.Discard<Tails.StateID>(Tails.StateID.StateSpinBoostCharge);
 
-    // Player.State.Discard<Sonic.StateID>(Sonic.StateID.StateSpinBoost);
-    // Player.State.Discard<Amy.StateID>(Amy.StateID.StateSpinBoost);
-    // Player.State.Discard<Knuckles.StateID>(Knuckles.StateID.StateSpinBoost);
-    // Player.State.Discard<Tails.StateID>(Tails.StateID.StateSpinBoost);
-
-    if (Player.Status.IsSideView())
-    {
-        Player.State.Redirect<Sonic.StateID>(Sonic.StateID.StateSpinBoost, Sonic.StateID.StateSpin);
-        Player.State.Redirect<Amy.StateID>(Amy.StateID.StateSpinBoost, Amy.StateID.StateSpin);
-        Player.State.Redirect<Knuckles.StateID>(Knuckles.StateID.StateSpinBoost, Knuckles.StateID.StateSpin);
-        Player.State.Redirect<Tails.StateID>(Tails.StateID.StateSpinBoost, Tails.StateID.StateSpin);
-    }
-    else
-    {
-        Player.State.Redirect<Sonic.StateID>(Sonic.StateID.StateSpinBoost, Sonic.StateID.StateDriftDash);
-        Player.State.Redirect<Amy.StateID>(Amy.StateID.StateSpinBoost, Amy.StateID.StateDriftDash);
-        Player.State.Redirect<Knuckles.StateID>(Knuckles.StateID.StateSpinBoost, Knuckles.StateID.StateDriftDash);
-        Player.State.Redirect<Tails.StateID>(Tails.StateID.StateSpinBoost, Tails.StateID.StateDriftDash);
-    }
+    Player.State.Redirect<Sonic.StateID>(Sonic.StateID.StateSpinBoost, Sonic.StateID.StateDriftDash);
+    Player.State.Redirect<Amy.StateID>(Amy.StateID.StateSpinBoost, Amy.StateID.StateDriftDash);
+    Player.State.Redirect<Knuckles.StateID>(Knuckles.StateID.StateSpinBoost, Knuckles.StateID.StateDriftDash);
+    Player.State.Redirect<Tails.StateID>(Tails.StateID.StateSpinBoost, Tails.StateID.StateDriftDash);
 
     if (RollLibrary.Rolling)
     {
@@ -73,14 +70,19 @@ Code "Dynamic Roll" in "Gameplay" by "KE13A"
         Player.State.Restore<Sonic.StateID>(Sonic.StateID.StateDropDash);
         Player.State.Restore<Amy.StateID>(Amy.StateID.StateDropDash);
         Player.State.Restore<Knuckles.StateID>(Knuckles.StateID.StateDropDash);
-        Player.State.Restore<Tails.StateID>(Tails.StateID.StateDropDash);           
+        Player.State.Restore<Tails.StateID>(Tails.StateID.StateDropDash);         
     }
 
 
     // === Functions ===
     void SetStateToRoll()
     {
-        if (currentSpeed > 0.0f)
+        if (RollLibrary.spinDashCharging)
+        {
+            return;
+        }
+
+        if (currentSpeed > 2.0f)
         {
             if (RollLibrary.preRoll)
             {
@@ -300,174 +302,191 @@ Code "Dynamic Roll" in "Gameplay" by "KE13A"
     {
         springLandTimer = 0.0f;
     }
+
+    //Console.WriteLine($"Current Speed is: {currentSpeed}");
 }
 
 
-// Code "Spin Dash Charge" by "KE13A" 
-// //
-// 	#include "Reflection" noemit
-//     #include "BlackboardStatus" noemit
 
-//     #lib "Player"
-//     #lib "BlackboardStatus"
-//     #lib "Time"
-
-//     #load "System.Numerics.dll"
-
-//     using System.Numerics;
-
-//     static bool IsVelocityAdded = false;
-//     static float chargeCount = 1.0f;
-//     static float pressTime = 0.0f;
-//     static bool SpinSFX = false;
-// //
-// {        
-   
-//     var currentState = Player.State.GetCurrentStateID<Sonic.StateID>();
-//     var previousState = Player.State.GetPreviousStateID<Sonic.StateID>();
-
-//     bool isBoomPressed = Player.Input.IsPressed(Player.InputActionType.PlayerSonicboom);
-//     bool isBoomDown = Player.Input.IsDown(Player.InputActionType.PlayerSonicboom);
-//     bool isBoomReleased = Player.Input.IsReleased(Player.InputActionType.PlayerSonicboom);
-
-//     bool Rolling =
-//     currentState == Sonic.StateID.StateSpin ||
-//     currentState == Sonic.StateID.StateDropDash ||
-//     currentState == Sonic.StateID.StateDriftDash ||
-//     currentState == Sonic.StateID.StateSpinBoost;
-
-//     float currentSpeed = Player.Kinematics.GetMagnitude();
-
-
-//     if ((currentState is Sonic.StateID.StateSquat or Sonic.StateID.StateSpinMove) && Player.Input.IsPressed(Player.InputActionType.PlayerBoost))
-//     {
-//         Player.State.Restore<Sonic.StateID>(Sonic.StateID.StateSpinBoostCharge);
-//         Player.State.Restore<Amy.StateID>(Amy.StateID.StateSpinBoostCharge);
-//         Player.State.Restore<Knuckles.StateID>(Knuckles.StateID.StateSpinBoostCharge);
-//         Player.State.Restore<Tails.StateID>(Tails.StateID.StateSpinBoostCharge);
-
-//         Player.State.SetState<Sonic.StateID>(Sonic.StateID.StateSpinBoostCharge);
-
-//     }
-//     // else
-//     // {
-//     //     Player.State.Redirect<Sonic.StateID>(Sonic.StateID.StateSpinMove, Sonic.StateID.StateSpinBoostCharge);
-//     //     Player.State.Redirect<Amy.StateID>(Amy.StateID.StateSpinMove, Amy.StateID.StateSpinBoostCharge);
-//     //     Player.State.Redirect<Knuckles.StateID>(Knuckles.StateID.StateSpinMove, Knuckles.StateID.StateSpinBoostCharge);
-//     //     Player.State.Redirect<Tails.StateID>(Tails.StateID.StateSpinMove, Tails.StateID.StateSpinBoostCharge);        
-//     // }
-
-//     // Player.State.Discard<Sonic.StateID>(Sonic.StateID.StateSpinBoostCharge);
-//     // Player.State.Discard<Amy.StateID>(Amy.StateID.StateSpinBoostCharge);
-//     // Player.State.Discard<Knuckles.StateID>(Knuckles.StateID.StateSpinBoostCharge);
-//     // Player.State.Discard<Tails.StateID>(Tails.StateID.StateSpinBoostCharge);
-
-//     // Spin Dash Charging
-//     if (Player.Status.IsGrounded() && Player.Input.IsPressed(Player.InputActionType.PlayerBoost) && (currentState == Sonic.StateID.StateSpinBoostCharge) && chargeCount < 6)
-//     {
-//         chargeCount += 1;
-//         Player.Animation.SetAnimation("JUMP_BALL"); 
-//         Player.Effect.PlayAnimationEffect("SPIN_CHARGE");
-//         Player.Sound.PlaySound("sn_spindash");
-//         SpinSFX = true;
-//     }
-//     else if (currentState == Sonic.StateID.StateSpinBoostCharge && chargeCount > 1)
-//     {
-//         chargeCount -= 0.015f;
-//     }
-
-//     if (Player.Status.IsGrounded() && Player.Input.IsReleased(Player.InputActionType.PlayerStomping) && Rolling)
-//     {
-//         var kinematics = Player.Kinematics.Get();
-
-//         if (kinematics == null)
-//             return;
-            
-//         if (!IsVelocityAdded && !IS_WORLD_FLAG(IsCyberSpace) && !Player.Status.IsSideView())
-//         {
-//             kinematics->Velocity = Player.Kinematics.GetForward() * (chargeCount * 7.5f + 15.0f);
-
-//             IsVelocityAdded = true;
-
-//             goto Reset;
-//         }
-
-//         if (!IsVelocityAdded && IS_WORLD_FLAG(IsCyberSpace) && !Player.Status.IsSideView())
-//         {
-//             kinematics->Velocity = Player.Kinematics.GetForward() * (chargeCount * 7.5f + 15.0f);
-
-//             IsVelocityAdded = true;
-
-//             goto Reset;
-//         }
-
-// 	    if (!IsVelocityAdded && Player.Status.IsSideView())
-//         {
-//             kinematics->Velocity = Player.Kinematics.GetForward() * (chargeCount * 4.0f + 15.0f);
-
-//             IsVelocityAdded = true;
-
-//             goto Reset;
-//         }
-//         Reset:
-//             chargeCount = 1;
-//             int soundHandle = Player.Sound.PlaySound("sn_spindash");
-//             Player.Sound.StopSound(&soundHandle); 
-//     }
-//     else
-//     {
-//         IsVelocityAdded = false;
-//     }
-
-//     // if (currentState != Sonic.StateID.StateSpinBoostCharge)
-//     // {
-//     //     chargeCount = 1;
-//     // }
-// }
-
-
-Code "Allow Rolling During Auto Run"
+Code "Spin Dash" by "KE13A" 
 //
+	#include "Reflection" noemit
     #include "BlackboardStatus" noemit
 
+    #lib "HMM"
+    #lib "INI"
     #lib "Player"
+    #lib "BlackboardStatus"
+    #lib "Time"
 
-    #import "Plugins"
+    #import "GOComponents"
     #import "RollLibrary"
+
+    #load "System.Numerics.dll"
+
+    using System.Numerics;
+
+    static bool IsConfigInitialised = false;
+    static int SpinDashType = 2;
+    static int SpinDashVelocityType = 0;
+    static int SpinDashSpeed = 10;
+
+
+    static bool isVelocityAdded = false;
+    static bool holdCharge = false;
+    static float chargeCount = 1.0f;
 //
 {
-    if (!IS_WORLD_FLAG(IsAutoRun))
+
+    if (!IsConfigInitialised)
+    {
+        var modsQuery = HMM.FindModsByName("Dynamic Roll");
+        if (modsQuery.Count == 1)
+        {
+            string modConfigIniPath = System.IO.Path.Combine(modsQuery[0].Path, "config.ini");
+            var ini = INI.Read(modConfigIniPath);
+
+            SpinDashType = INI.Parse<int>(ini["SpinDashSettings"]["SpinDashType"], SpinDashType);
+            SpinDashVelocityType = INI.Parse<int>(ini["SpinDashSettings"]["SpinDashVelocityType"], SpinDashVelocityType);
+            SpinDashSpeed = INI.Parse<int>(ini["SpinDashSettings"]["SpinDashSpeed"], SpinDashSpeed);
+
+        }
+
+        IsConfigInitialised = true;
+    }
+
+    switch (SpinDashType)
+    {
+        case 0:
+            return;
+
+        case 1:
+            holdCharge = false;
+            break;
+
+        case 2:
+            holdCharge = true;
+            break;
+        
+        default:
+            break;
+    }
+
+
+    var currentState = Player.State.GetCurrentStateID<Sonic.StateID>();
+    var previousState = Player.State.GetPreviousStateID<Sonic.StateID>();
+
+
+    if (!Player.Status.IsGrounded() || currentState == Sonic.StateID.StateBounceJump)
+    {
+        RollLibrary.spinDashCharging = false;
+        RollLibrary.canSpinCharge = false;
+        return;
+    }
+
+    if (!Memory.TryGetPointer<GOCPlayerKinematicParams>(Player.Kinematics.Get(), out var out_pKinematics))
     {
         return;
     }
 
-    var kinematics = Player.Kinematics.Get();
-    var vel = kinematics->Velocity;
-    var currentState = Player.State.GetCurrentStateID<Sonic.StateID>();
+    var worldInput = out_pKinematics->WorldInput;
 
-    if (RollLibrary.rollInputPressed || RollLibrary.Rolling)
+    if (((currentState is Sonic.StateID.StateRun or Sonic.StateID.StateSquat or Sonic.StateID.StateSliding or Sonic.StateID.StateSpringJumpHeadLand) || RollLibrary.Rolling) 
+    && Player.Input.IsDown(Player.InputActionType.PlayerStomping))
     {
-        Player.State.SetState<Sonic.StateID>(Sonic.StateID.StateSpin);
-        kinematics->Velocity = vel;
+        RollLibrary.canSpinCharge = true;
+        Player.State.Restore<Sonic.StateID>(Sonic.StateID.StateSpinBoostCharge);
+        Player.State.Restore<Amy.StateID>(Amy.StateID.StateSpinBoostCharge);
+        Player.State.Restore<Knuckles.StateID>(Knuckles.StateID.StateSpinBoostCharge);
+        Player.State.Restore<Tails.StateID>(Tails.StateID.StateSpinBoostCharge);
+    }
+    else
+    {
+        RollLibrary.canSpinCharge = false;
+        Player.State.Discard<Sonic.StateID>(Sonic.StateID.StateSpinBoostCharge);
+        Player.State.Discard<Amy.StateID>(Amy.StateID.StateSpinBoostCharge);
+        Player.State.Discard<Knuckles.StateID>(Knuckles.StateID.StateSpinBoostCharge);
+        Player.State.Discard<Tails.StateID>(Tails.StateID.StateSpinBoostCharge);  
     }
 
-    if (RollLibrary.rollInputReleased)
+
+    // Spin Dash Charge
+    if ((holdCharge ? RollLibrary.rollInputDown : RollLibrary.rollInputPressed) && (RollLibrary.canSpinCharge || currentState == Sonic.StateID.StateSpinBoostCharge))
     {
-        if (Player.Input.IsDown(Player.InputActionType.PlayerBoost))
+        RollLibrary.spinDashCharging = true;
+        Player.State.SetState<Sonic.StateID>(Sonic.StateID.StateSpinBoostCharge);
+
+        if (chargeCount < 6)
         {
-            if (Memory.TryGetPointer<StatePluginBoost>(Player.State.GetStatePlugin<StatePluginBoost>(), out var out_pStatePluginBoost))
+            chargeCount += (holdCharge ? 0.055f : 1.5f);     
+        }
+        else if (chargeCount > 6)
+        {
+            chargeCount = 6.0f;
+        }
+    }
+    else
+    {
+        chargeCount -= 0.035f;
+    }
+
+
+    // Spin Dash Reset
+    if (RollLibrary.spinDashCharging)
+    {
+        if (chargeCount <= 0)
+        {
+            RollLibrary.spinDashCharging = false;
+            Player.State.SetState<Sonic.StateID>(Sonic.StateID.StateSpringJumpHeadLand);      
+        }
+
+        if (Player.Input.IsReleased(Player.InputActionType.PlayerStomping))
+        {
+            RollLibrary.spinDashCharging = false;
+
+            if (worldInput.Length() == 0.0f && !RollLibrary.rollInputDown)
             {
-                if ((out_pStatePluginBoost->Flags & StatePluginBoost.BoostFlags.IsGaugeEmpty) == 0)
-                {
-                    Player.State.SetState(Sonic.StateID.StateStandRoot);
-                    SET_STATE_FLAG(IsBoost, true);
-                }
+                Player.State.SetState<Sonic.StateID>(Sonic.StateID.StateSpringJumpHeadLand);
             }
+            else if (previousState == Sonic.StateID.StateSpinBoostCharge && currentState == Sonic.StateID.StateSpinBoost)
+            {
+                Player.State.SetState<Sonic.StateID>(RollLibrary.rollInputDown ? Sonic.StateID.StateDropDash : Sonic.StateID.StateSpringJumpHeadLand)
+
+                if (!isVelocityAdded)
+                {
+                    var kinematics = Player.Kinematics.Get();
+
+                    if (kinematics == null)
+                    {
+                        return;
+                    }
+
+                    var newVelocity = Player.Kinematics.GetForward() * (chargeCount * (Player.Status.IsSideView() ? (SpinDashSpeed / 1.5f) : SpinDashSpeed) + 12.0f);
+
+                    switch (SpinDashVelocityType)
+                    {
+                        case 0:
+                            kinematics->Velocity = newVelocity;
+                            break;
+
+                        case 1:
+                            kinematics->Velocity += newVelocity;
+                            break;
+                        
+                        default:
+                            kinematics->Velocity = newVelocity;
+                            break;
+                    }
+
+                    isVelocityAdded = true;
+                }
+            }    
         }
-        else
-        {
-            Player.State.SetState(Sonic.StateID.StateSpringJumpHeadLand);
-        }
+    }
+    else
+    {
+        chargeCount = 1;
+        isVelocityAdded = false; 
     }
 }
 
@@ -546,28 +565,7 @@ Code "Fix Movement Locks"
 // }
 
 
-// Code "Dynamic Ballin" By "Lex"
-// //
-// 	#include "Reflection" noemit
 
-// 	#lib "Reflection"
-// 	#lib "SonicParameters"
-// //
-// {
-// 	var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
-
-// 	if (SonicParametersInfo.pData == null)
-// 		return;
-
-//     float SpinSmack = Player.Kinematics.GetMagnitude()
-
-// 	RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.spinDash.velocity.Y, 5.0f);
-// 	RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.spinDash.velocity.Z, SpinSmack);
-//     RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.spinDash.damageRate, SpinSmack*0.08f);
-
-//     RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.spinAttack.damageRate, SpinSmack*0.08f);
-
-// }
 
 //===========================================================================================================
 //Combat Fuctionality
@@ -738,6 +736,55 @@ Code "DriftDash do Damage" in "Gameplay/Skills"
 }
 
 
+Code "Dynamic Ballin" By "Lex"
+//
+	#include "Reflection" noemit
+
+    #lib "HMM"
+    #lib "INI"
+
+	#lib "Reflection"
+	#lib "SonicParameters"
+
+    using System.Collections.Generic;
+
+    static bool IsConfigInitialised = false;
+    static int RollDamage = 0;
+//
+{
+    if (!IsConfigInitialised)
+    {
+        var modsQuery = HMM.FindModsByName("Dynamic Roll");
+        if (modsQuery.Count == 1)
+        {
+            string modConfigIniPath = System.IO.Path.Combine(modsQuery[0].Path, "config.ini");
+            var ini = INI.Read(modConfigIniPath);
+
+            RollDamage = INI.Parse<int>(ini["Main"]["RollDamage"], RollDamage);
+        }
+
+        IsConfigInitialised = true;
+    }
+
+    if (RollDamage == 0)
+    {
+        return;
+    }
+	var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
+
+	if (SonicParametersInfo.pData == null)
+		return;
+
+    float SpinSmack = Player.Kinematics.GetMagnitude()
+
+	RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.spinDash.velocity.Y, 5.0f);
+	RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.spinDash.velocity.Z, SpinSmack);
+    RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.spinDash.damageRate, SpinSmack*0.08f);
+
+    RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.spinAttack.damageRate, SpinSmack*0.08f);
+}
+
+
 //===========================================================================================================
 //Animations
 
@@ -750,6 +797,12 @@ Code "Grounded Rolling Animation Changes"
     #lib "BlackboardStatus"
 
     #import "RollLibrary"
+
+    #load "System.Numerics.dll"
+    #load "WindowsBase.dll"
+
+    using System.IO;
+    using System.Numerics;
 
     static float headLandingTime = 0.0f;
     static float unRollTargetTime = 0.04f; //0.065f
@@ -766,7 +819,7 @@ Code "Grounded Rolling Animation Changes"
 
     airFlipLandTimer = ((0.5f / currentSpeed) + 0.12f);
 
-    if (!Player.Status.IsGrounded())
+    if (!Player.Status.IsGrounded() || RollLibrary.spinDashCharging)
     {
         return;
     }
@@ -792,7 +845,7 @@ Code "Grounded Rolling Animation Changes"
         }
         else
         {
-            airFlipLandTime = 0.0f
+            airFlipLandTime = 0.0f;
             Player.State.SetState(Sonic.StateID.StateStandRoot);      
             Player.State.SetState(Sonic.StateID.StateRun);  
             airFlipLand = false;    
@@ -808,6 +861,18 @@ Code "Grounded Rolling Animation Changes"
     if (currentState == Sonic.StateID.StateSpringJumpHeadLand)
     {
         headLandingTime += Time.GetDeltaTime() * RollLibrary.timeScale;
+
+        // Fixes Sonic entering his idle animation when exiting StateSpringJumpHeadLand at a 90 degree angle. 
+        var kinematics = Player.Kinematics.Get();
+        if (kinematics != null)
+        {
+            float dotProduct = Vector3.Transform(Vector3.UnitY, kinematics->Rotation).Y;
+
+            if (dotProduct < 0.6f)
+            {
+                Player.State.SetState<Sonic.StateID>(Sonic.StateID.StateRun);
+            }
+        }
 
         // Pre Roll Animation
         if (RollLibrary.rollInputDown && RollLibrary.preRoll)
@@ -826,7 +891,21 @@ Code "Grounded Rolling Animation Changes"
             else if (headLandingTime >= unRollTargetTime)
             {
                 Player.Effect.StopAnimationEffects();
-                Player.Animation.SetAnimation("JUMP_BALL");;
+                Player.Animation.SetAnimation("JUMP_BALL");
+            }
+        }
+
+        // Spin Dash to Run Exit Animation
+        if (previousState == Sonic.StateID.StateSpinBoost && currentSpeed > 10.0f)
+        {
+            if (headLandingTime < (unRollTargetTime + 0.05f))
+            {
+                Player.Effect.StopAnimationEffects();
+                Player.Animation.SetAnimation("JUMP_BALL");
+            }
+            else if (headLandingTime >= (unRollTargetTime + 0.05f))
+            {
+                Player.State.SetState(Sonic.StateID.StateSpringJumpHeadLand);  
             }
         }
     }
@@ -1027,24 +1106,52 @@ Code "Always Unlocked Spin Dash" in "Cheats/Skills" by "Hyper"
 }
 
 
-Patch "Disable Spin Charge Camera" in "Camera" by "Hyper" does 
-/*
-Disables the zoom camera when charging a Spin Dash.
+Code "Increased Spin Charge Rotation Speed" in "Physics" by "Hyper" does "Increases the rotation speed for the direction the player is aiming whilst charging a Spin Dash to closely match your analog stick direction." 
+//
+    #include "Reflection" noemit
 
-Notes;
-- It is recommended that you use this with Increased Spin Charge Rotation Speed.
-*/
+    #lib "Reflection"
+    #lib "SonicParameters"
+    #lib "AmyParameters"
+    #lib "KnucklesParameters"
+    #lib "TailsParameters"
+//
+{
+    var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
+
+    if (SonicParametersInfo.pData != null)
+        RFL_SET_CONTEXTUAL_PLAYER_PARAM(SonicParametersInfo, spinBoost.chargeRotateForce, 500.0f);
+
+    var AmyParametersInfo = Reflection.GetDataInfo<AmyParameters.Root>("amy_common");
+
+    if (AmyParametersInfo.pData != null)
+        RFL_SET_PARAM(AmyParametersInfo, forwardView.spinBoost.chargeRotateForce, 500.0f);
+
+    var KnucklesParametersInfo = Reflection.GetDataInfo<KnucklesParameters.Root>("knuckles_common");
+
+    if (KnucklesParametersInfo.pData != null)
+        RFL_SET_PARAM(KnucklesParametersInfo, forwardView.spinBoost.chargeRotateForce, 500.0f);
+
+    var TailsParametersInfo = Reflection.GetDataInfo<TailsParameters.Root>("tails_common");
+
+    if (TailsParametersInfo.pData != null)
+        RFL_SET_PARAM(TailsParametersInfo, forwardView.spinBoost.chargeRotateForce, 500.0f);
+}
+
+
+
+Patch "Disable Drop Dash Turning Delay" in "Physics/Sonic" by "Hyper" does "Disables the out of control timer that determines when Sonic can start turning whilst drop dashing." 
 {
     WriteNop
     (
-        /* 0x1408A67DC */
+        /* 0x14084323B */
         ScanSignature
         (
-            "\xE8\xCC\xCC\xCC\xCC\x48\x8B\xCF\xBB\x24\x00\x00\x00",
-            "x????xxxxxxxx"
+            "\x73\x19\x48\x8B\x47\x40",
+            "xxxxxx"
         ),
 
-        5
+        2
     );
 }
 

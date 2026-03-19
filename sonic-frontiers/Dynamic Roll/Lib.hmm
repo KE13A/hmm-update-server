@@ -30,6 +30,9 @@ Library "RollLibrary" by "KE13A"  // Rolling Parameters
     public static bool preRoll;
     public static float preRollTransitionTime;
 
+    public static bool spinDashCharging;
+    public static bool canSpinCharge;
+
     public static bool airRoll;
     public static bool airFlip;
 
@@ -126,7 +129,6 @@ Library "RollLibrary" by "KE13A"  // Rolling Parameters
         Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateSonicBoomKick &&
         (Player.Status.GetLockOnTarget() == null || 
         GameObject.GetGOC(Player.Status.GetLockOnTarget(), "GOCHealth") == null);
-
 
         currentFriendsAerialState =
         Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.StateHighJump ||

@@ -1,3 +1,13 @@
+# Dynamic Roll v1.3.0
+* Added Spin Dash ability with customizable settings
+  - Options to set Spin Dash charge as Tap or Hold, or to disable ability all together
+  - Options to set how velocity is applied when using Spin Dash
+  - Option to set Spin Dash Speed per charge
+* Improved Animation for exiting and entering  Spin Dash
+* Removed the ability to roll in Auto Run sections for smoother gameplay
+* Reenabled 'Dynamic Balling' code for combat
+* Code cleanup
+
 # Dynamic Roll v1.2.4
 * Movement lock at high speeds bugfix
 * Added dynamic speed for Drop Dash in custom physics

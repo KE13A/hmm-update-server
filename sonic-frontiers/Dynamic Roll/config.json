@@ -2,7 +2,7 @@
 	"Groups": [
 		{
 			"Name": "Main",
-			"DisplayName": "Customization",
+			"DisplayName": "Roll Settings",
 			"Elements": [
 				{
 					"Name": "CustomPhysics",
@@ -38,6 +38,43 @@
 					"DefaultValue": "1"
 				}
 			]
+		},
+		{
+			"Name": "SpinDashSettings",
+			"DisplayName": "Spin Dash Settings",
+			"Elements": [
+				{
+					"Name": "SpinDashType",
+					"DisplayName": "Spin Dash Type",
+					"Description": [
+						"Allow characters to use the Spin Dash ability. Hold and Release 'B' while either Tapping or Holding the 'LT' to Spin Dash"
+					],
+					"Type": "SpinDashTypeEnum",
+					"MinValue": null,
+					"MaxValue": null,
+					"DefaultValue": "2"
+				},
+				{
+					"Name": "SpinDashVelocityType",
+					"DisplayName": "Spin Dash Velocity",
+					"Description": [
+						"Set how Spin Dash applies ppeed"
+					],
+					"Type": "SpinDashVelocityTypeEnum",
+					"MinValue": null,
+					"MaxValue": null,
+					"DefaultValue": "1"
+				},
+				{
+					"Name": "SpinDashSpeed",
+					"DisplayName": "Spin Dash Speed",
+					"Description": [
+						"Set how fast Spin Dash will be per charge."
+					],
+					"Type": "float",
+					"DefaultValue": "10"
+				}
+			]
 		}
 	],
 	"Enums": {
@@ -57,6 +94,47 @@
 					""
 				]
 			}
+		],
+		"SpinDashTypeEnum": [
+			{
+				"DisplayName": "Disabled",
+				"Value": "0",
+				"Description": [
+					"Disables Spin Dash"
+				]
+				
+			},
+			{
+				"DisplayName": "Tap Charge",
+				"Value": "1",
+				"Description": [
+					"Tap to Charge Spin Dash"
+				]
+			},
+			{
+				"DisplayName": "Hold Charge",
+				"Value": "2",
+				"Description": [
+					"Hold to Charge Spin Dash"
+				]
+			}		
+		],
+		"SpinDashVelocityTypeEnum": [
+			{
+				"DisplayName": "Reset",
+				"Value": "0",
+				"Description": [
+					"Resets velocity to new speed"
+				]
+				
+			},
+			{
+				"DisplayName": "Additive",
+				"Value": "1",
+				"Description": [
+					"Adds velocity on top of current speed"
+				]
+			}	
 		]
 	},
 	"IniFile": "config.ini"
