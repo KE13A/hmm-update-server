@@ -1,5 +1,5 @@
 add Roll.hmm
-add RollEffects.hmm
-add RollPhysics.hmm
 add Lib.hmm
+add config.ini
+add config.json
 add mod.ini
