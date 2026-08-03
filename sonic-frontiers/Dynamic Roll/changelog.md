@@ -1,3 +1,11 @@
+# Dynamic Roll v1.4.0
+* Added roll sound effect options
+* Added homing attack trail effect option
+* Added dynamic camera FOV change depending on roll speed
+* Fixed exiting roll to early on low speeds
+* Improved animation transitions when entering and exiting roll in air 
+* Code cleanup
+
 # Dynamic Roll v1.3.0
 * Added Spin Dash ability with customizable settings
   - Options to set Spin Dash charge as Tap or Hold, or to disable ability all together

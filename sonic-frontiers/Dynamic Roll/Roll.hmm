@@ -82,7 +82,7 @@ Code "Dynamic Roll" in "Gameplay" by "KE13A"
             return;
         }
 
-        if (currentSpeed > 2.0f)
+        if (currentSpeed > RollLibrary.minimumRollSpeed)
         {
             if (RollLibrary.preRoll)
             {
@@ -508,6 +508,35 @@ Code "Fix Movement Locks"
 
     RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.outOfControlSpeed, 999f);
     RFL_SET_PARAM(SonicParametersInfo, forwardView.driftDash.outOfControlSpeed, 999f);
+    RFL_SET_PARAM(SonicParametersInfo, cyberspace.dropDash.outOfControlSpeed, 999f);
+    RFL_SET_PARAM(SonicParametersInfo, cyberspace.driftDash.outOfControlSpeed, 999f); 
+    RFL_SET_PARAM(SonicParametersInfo, cyberspaceSV.dropDash.outOfControlSpeed, 999f);
+    RFL_SET_PARAM(SonicParametersInfo, cyberspaceSV.driftDash.outOfControlSpeed, 999f); 
+}
+
+Code "Fix Early Roll Exit"
+//
+	#include "Reflection" noemit
+
+	#lib "Reflection"
+	#lib "SonicParameters"
+
+    #import "RollLibrary"
+//
+{
+    var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
+
+	if (SonicParametersInfo.pData == null)
+    {
+		return;
+    }
+
+    RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.checkDashSpeed, RollLibrary.minimumRollSpeed);
+    RFL_SET_PARAM(SonicParametersInfo, forwardView.driftDash.checkDashSpeed, RollLibrary.minimumRollSpeed);
+    RFL_SET_PARAM(SonicParametersInfo, cyberspace.dropDash.checkDashSpeed, RollLibrary.minimumRollSpeed);
+    RFL_SET_PARAM(SonicParametersInfo, cyberspace.driftDash.checkDashSpeed, RollLibrary.minimumRollSpeed);
+    RFL_SET_PARAM(SonicParametersInfo, cyberspaceSV.dropDash.checkDashSpeed, RollLibrary.minimumRollSpeed);
+    RFL_SET_PARAM(SonicParametersInfo, cyberspaceSV.driftDash.checkDashSpeed, RollLibrary.minimumRollSpeed);
 }
 
 
@@ -936,6 +965,7 @@ Code "Aerial Rolling Animation Changes"
     static bool airRolled = false;
     static string fallAnimation = "";
     static bool hasStateChanged = false;
+    static Sonic.StateID jumpState;
 //
 {
     var currentState = Player.State.GetCurrentStateID<Sonic.StateID>();
@@ -943,26 +973,25 @@ Code "Aerial Rolling Animation Changes"
 
     float horizontalSpeed = Player.Kinematics.GetHorizontalMagnitude();
     float currentSpeed = Player.Kinematics.GetMagnitude();
-    float releaseRollTargetTime = 0.5f - (20.0f / (currentSpeed + 25.0f)); 
+    float releaseRollTargetTime = 0.5f - (20.0f / (currentSpeed + 35.0f)); 
 
     hasStateChanged = (previousState != currentState) ? true : false;
 
-    if (releaseRollTargetTime > 0.085f)
+    // Console.WriteLine($"Air Roll is: {RollLibrary.GetAirRoll()}");
+
+    if (releaseRollTargetTime > 0.1875f)
     {
         releaseTimer = releaseRollTargetTime;
     }
     else
-    {
-        releaseTimer = 0.085f;            
+    { 
+        releaseTimer = 0.1875f;   
     }
 
-    if (Player.Status.IsGroundedSpecial())
-    {
-        releaseTime = 0.0f;
-        return;
-    }
+    //releaseTimer = 0.15f;
 
-    if (hasStateChanged)
+
+    if (Player.Status.IsGroundedSpecial() || !RollLibrary.Jumping || (RollLibrary.GetAirFlip() && (jumpState != currentState && hasStateChanged)))
     {
         if (!RollLibrary.GetAirRoll())
         {
@@ -972,8 +1001,9 @@ Code "Aerial Rolling Animation Changes"
             }
         }
 
-        RollLibrary.SetAirFlip(false);
         releaseTime = 0.0f;
+        airRolled = false;
+        RollLibrary.SetAirFlip(false);
         return;
     }    
 
@@ -981,29 +1011,18 @@ Code "Aerial Rolling Animation Changes"
     {
         if (!RollLibrary.GetAirFlip())
         {
-            // if (horizontalSpeed < 45.0f)
-            // {
-            //     fallAnimation = "FALL";
-            // }
-            // else if (horizontalSpeed > 45.0f && horizontalSpeed < 70.0f)
-            // {
-            //     fallAnimation = "BUMP_JUMP_FALL";
-            // }
-            // else
-            // {
-            //     fallAnimation = "SELECTJUMP_MISS_LOOP";
-            // }
- 
             fallAnimation = (horizontalSpeed >= 70.0f) ? "SELECTJUMP_MISS_LOOP" : "FALL"; // BUMP_JUMP_FALL or BUMP_JUMP_FALL DIVE_DAMAGE
             releaseTime = releaseTimer;
             airRolled = false;
+            jumpState = currentState;
             RollLibrary.SetAirFlip(true);
         }
     }
 
     if (RollLibrary.GetAirRoll() && !airRolled)
     {
-        airRolled = true;     
+        airRolled = true;   
+        RollLibrary.SetAirFlip(false);
     }
 
     if (RollLibrary.rollInputPressed)
@@ -1033,18 +1052,18 @@ Code "Aerial Rolling Animation Changes"
     }
 
     // Air Roll Animation Sequence
-    if (RollLibrary.GetAirRoll())
+    if (airRolled && !RollLibrary.GetAirFlip())
     {
-        RollLibrary.SetAirFlip(false);
-
         if (RollLibrary.rollInputPressedTime > 0.0f && RollLibrary.rollInputPressedTime < preRollTargetTime)
         {
             Player.Effect.StopAnimationEffects();
-            Player.Animation.SetAnimation("JUMP_BALL");       
+            Player.Animation.SetAnimation("JUMP_BALL");   
         }
         else if (RollLibrary.rollInputPressedTime >= preRollTargetTime)
         {
             Player.Effect.PlayAnimationEffect("SPINJUMP");
+            //Player.Animation.SetAnimation("SPIN"); 
+            Player.Animation.SetAnimation("SPIN_LOOP"); //Sonic.Animation.SetAnimation("SPIN_LOOP");
         }
     }
 
@@ -1055,17 +1074,17 @@ Code "Aerial Rolling Animation Changes"
 
         if(releaseTime > 0.0f)
         {
-            releaseTime -= Time.GetDeltaTime() * RollLibrary.timeScale;
             Player.Animation.SetAnimation("JUMP_BALL");
+            releaseTime -= Time.GetDeltaTime() * RollLibrary.timeScale;
+            //Player.Animation.SetAnimationParameter("LR", 100.0f);
         }
-        else
+        else 
         {
             releaseTime = 0.0f;
+
             Player.Animation.SetAnimation(fallAnimation);
-            //Player.Animation.SetAnimation("FALL");
-            //Player.Animation.SetAnimation("CLOUD_JUMP_TOP");
             Player.Animation.SetAnimationParameter("LR", 100.0f);
-        }
+        }    
     }
 }
 

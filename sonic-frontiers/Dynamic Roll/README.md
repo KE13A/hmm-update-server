@@ -6,6 +6,7 @@ Codes to Disable:\
 -Disable Sonic Boom for Regular Objects\
 -Fix Damage from Jumping into Enemies\
 -Always Unlocked Spin Dash\
+-Disable Spin Charge Camera\
 -Fix Rolling in 2D\
 -Somersault Landing at High Velocity\
 
@@ -15,7 +16,6 @@ and will likely cause crashes and glitches if they're still enabled in HMM.
 "Character Normalizer" is required for other playable characters to work
 
 Recommended Codes:\
--Disable Spin Charge Camera\
 -Drop Dash on Double Jump\
 -Fix Player Deceleration\
 -Fix Spin Dash Transition\

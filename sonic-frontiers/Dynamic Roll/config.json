@@ -25,7 +25,13 @@
 					"MinValue": null,
 					"MaxValue": null,
 					"DefaultValue": "1"
-				},
+				}
+			]
+		},
+		{
+			"Name": "RollAesthetics",
+			"DisplayName": "Roll Aesthetics",
+			"Elements": [
 				{
 					"Name": "RollTrail",
 					"DisplayName": "Rolling Trail",
@@ -33,6 +39,39 @@
 						"Adds a rolling trail when charaters are in a spinball state"
 					],
 					"Type": "EnableEnum",
+					"MinValue": null,
+					"MaxValue": null,
+					"DefaultValue": "1"
+				},
+				{
+					"Name": "DynamicFOVy",
+					"DisplayName": "Dynamic Roll FOV",
+					"Description": [
+						"Dynamically changes the camera's field of view when rolling based off speed"
+					],
+					"Type": "EnableEnum",
+					"MinValue": null,
+					"MaxValue": null,
+					"DefaultValue": "1"
+				},
+				{
+					"Name": "HommingTrail",
+					"DisplayName": "Homming Attack Trail",
+					"Description": [
+						"Adds a trail when homing attacking"
+					],
+					"Type": "EnableEnum",
+					"MinValue": null,
+					"MaxValue": null,
+					"DefaultValue": "1"
+				},
+				{
+					"Name": "RollSound",
+					"DisplayName": "Rolling Sound",
+					"Description": [
+						"Play spin sound play when rolling"
+					],
+					"Type": "RollSoundEnum",
 					"MinValue": null,
 					"MaxValue": null,
 					"DefaultValue": "1"
@@ -92,6 +131,29 @@
 				"Value": "0",
 				"Description": [
 					""
+				]
+			}
+		],
+		"RollSoundEnum": [
+			{
+				"DisplayName": "Mute",
+				"Value": "0",
+				"Description": [
+					"Mutes spindash sound for all rolling states"
+				]
+			},
+			{
+				"DisplayName": "Continuous",
+				"Value": "1",
+				"Description": [
+					"Plays spindash sound continuously for all rolling states"
+				]
+			},
+			{
+				"DisplayName": "Dynamic",
+				"Value": "2",
+				"Description": [
+					"Plays spindash sound dynamically for all rolling states"
 				]
 			}
 		],
