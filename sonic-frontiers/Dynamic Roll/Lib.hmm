@@ -30,6 +30,8 @@ Library "RollLibrary" by "KE13A"  // Rolling Parameters
     public static bool preRoll;
     public static float preRollTransitionTime;
 
+    public static float minimumRollSpeed = 2.0f;
+
     public static bool spinDashCharging;
     public static bool canSpinCharge;
 

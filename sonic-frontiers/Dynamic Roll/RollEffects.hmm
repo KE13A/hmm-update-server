@@ -1,4 +1,4 @@
-Code "Roll Trail"
+Code "Trail Effects"
 //
 	#include "BlackboardStatus" noemit 
 
@@ -15,6 +15,7 @@ Code "Roll Trail"
 
     static bool IsConfigInitialised = false;
     static int RollTrail = 0;
+    static int HommingTrail = 0;
     static bool Streak = false;
     static float rollTime = 0.0f;
     static float airRollTime = 0.0f;
@@ -28,13 +29,14 @@ Code "Roll Trail"
             string modConfigIniPath = System.IO.Path.Combine(modsQuery[0].Path, "config.ini");
             var ini = INI.Read(modConfigIniPath);
 
-            RollTrail = INI.Parse<int>(ini["Main"]["RollTrail"], RollTrail);
+            RollTrail = INI.Parse<int>(ini["RollAesthetics"]["RollTrail"], RollTrail);
+            HommingTrail = INI.Parse<int>(ini["RollAesthetics"]["HommingTrail"], HommingTrail);
         }
 
         IsConfigInitialised = true;
     }
 
-    if (RollTrail == 0)
+    if (RollTrail == 0 && HommingTrail == 0)
     {
         return;
     }
@@ -43,8 +45,73 @@ Code "Roll Trail"
 
     var currentState = Player.State.GetCurrentStateID<Sonic.StateID>();
     var previousState = Player.State.GetPreviousStateID<Sonic.StateID>();
-
     float currentSpeed = Player.Kinematics.GetMagnitude();
+
+
+    bool StopTrail()
+    {
+        if (HommingTrail == 1)
+        {
+            if ((currentState != Sonic.StateID.StateHomingAttack) && ((!RollLibrary.Rolling && !RollLibrary.Jumping) || RollLibrary.rollInputReleased || RollLibrary.preRoll || RollLibrary.GetAirFlip() || currentSpeed <= 5.0f))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            if ((!RollLibrary.Rolling && !RollLibrary.Jumping) || RollLibrary.rollInputReleased || RollLibrary.preRoll || RollLibrary.GetAirFlip() || currentSpeed <= 5.0f)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+
+    bool PlayHomingTrail()
+    {
+        if (HommingTrail == 1)
+        {
+            if (currentState == Sonic.StateID.StateHomingAttack)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    bool PlayRollingTrail()
+    {
+        if (RollTrail == 1)
+        {
+            if ((RollLibrary.Rolling && Player.Status.IsGrounded() && rollTime > 0.0085f) || (currentState == Sonic.StateID.StateSpinBoostCharge) && (airRollTime > (0.09f * RollLibrary.timeScale)))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
+
 
     if (RollLibrary.Rolling)
     {
@@ -64,44 +131,88 @@ Code "Roll Trail"
         airRollTime = 0.0f;
     }
 
-    if (RollTrail == 1)
+
+    if (StopTrail())
     {
-        if((!RollLibrary.Rolling && !RollLibrary.Jumping) || RollLibrary.rollInputReleased || RollLibrary.preRoll || RollLibrary.GetAirFlip() || currentSpeed <= 5.0f)
+        Player.Effect.StopEffect("RollTrail");
+        Streak = false;
+    }
+    else if (PlayHomingTrail() || PlayRollingTrail()) 
+    {
+        if(!Streak)
         {
-            Player.Effect.StopEffect("RollTrail");
-            Streak = false;
-        }
-        else if ((Player.Status.IsGrounded() && rollTime > 0.0085f) || (airRollTime > (0.09f * RollLibrary.timeScale))) 
-        {
-            if(!Streak)
+            if(Player.GetPlayerType() == Player.PlayerType.Sonic)
             {
-                if(Player.GetPlayerType() == Player.PlayerType.Sonic)
-                {
-                Player.Effect.PlayEffect("RollTrail", "CUSTOM_Sonic")
-                }
-
-                if(Player.GetPlayerType() == Player.PlayerType.Tails)
-                {
-                Player.Effect.PlayEffect("RollTrail", "CUSTOM_Tails")
-                }
-
-                if(Player.GetPlayerType() == Player.PlayerType.Knuckles)
-                {
-                Player.Effect.PlayEffect("RollTrail", "CUSTOM_Knuckles")
-                }
-
-                if(Player.GetPlayerType() == Player.PlayerType.Amy)
-                {
-                Player.Effect.PlayEffect("RollTrail", "CUSTOM_Amy")
-                }
-                Streak = true;
+            Player.Effect.PlayEffect("RollTrail", "CUSTOM_Sonic")
             }
+
+            if(Player.GetPlayerType() == Player.PlayerType.Tails)
+            {
+            Player.Effect.PlayEffect("RollTrail", "CUSTOM_Tails")
+            }
+
+            if(Player.GetPlayerType() == Player.PlayerType.Knuckles)
+            {
+            Player.Effect.PlayEffect("RollTrail", "CUSTOM_Knuckles")
+            }
+
+            if(Player.GetPlayerType() == Player.PlayerType.Amy)
+            {
+            Player.Effect.PlayEffect("RollTrail", "CUSTOM_Amy")
+            }
+            Streak = true;
         }
-        else
+    }
+    else
+    {
+        Player.Effect.StopEffect("RollTrail");
+        Streak = false;
+    }
+}
+
+
+Code "Windy Speed Effects" 
+//
+    #include "Reflection" noemit
+
+    #lib "Player"
+    #lib "BlackboardStatus"
+    #lib "Reflection"
+    #lib "Lua"
+
+    #import "RollLibrary"
+
+    #load "System.Numerics.dll"
+
+    using System;
+    using System.Numerics;
+
+    static bool windEffectActive = false;
+//
+{
+    var kinematics = Player.Kinematics.Get();
+
+    if (kinematics == null)
+        return;
+
+    if (BlackboardStatus.IsSuper())
+        return;
+    
+    float currentSpeed = Player.Kinematics.GetMagnitude();
+    var state = Player.State.GetCurrentStateID<Sonic.StateID>();
+
+    if ((currentSpeed >= 25.0f || currentSpeed >= 10.0f && Player.Status.IsSideView()) && RollLibrary.Rolling && !Player.Status.IsUnderwater())
+    {
+        if (!windEffectActive)
         {
-            Player.Effect.StopEffect("RollTrail");
-            Streak = false;
+            Player.Effect.PlayEffect("Windy", "ef_ft_dash_ge01")         
+            windEffectActive = true;
         }
+    }
+    else
+    {
+        Player.Effect.StopEffect("Windy");
+        windEffectActive = false;
     }
 }
 
@@ -136,4 +247,191 @@ Code "Roll Up SFX"
         Player.Sound.StopSound(&soundHandle);
         spinSFX = false;
     }
+}
+
+
+Code "Rolling SFX"
+//
+    #include "Reflection" noemit
+    #include "BlackboardStatus" noemit
+
+    #lib "HMM"
+    #lib "INI"
+    #lib "Player"
+    #lib "Lua"
+
+    #import "RollLibrary"
+        
+    #load "System.Numerics.dll"
+
+    using System.Numerics;
+
+    static bool IsConfigInitialised = false;
+    static int RollSound = 0;
+    static bool rollSFX = false;
+    static float soundTimer = 0.0f;
+    static float targetSoundTime = 0f;
+//
+{
+    if (!IsConfigInitialised)
+    {
+        var modsQuery = HMM.FindModsByName("Dynamic Roll");
+        if (modsQuery.Count == 1)
+        {
+            string modConfigIniPath = System.IO.Path.Combine(modsQuery[0].Path, "config.ini");
+            var ini = INI.Read(modConfigIniPath);
+
+            RollSound = INI.Parse<int>(ini["RollAesthetics"]["RollSound"], RollSound);
+        }
+
+        IsConfigInitialised = true;
+    }
+
+    float currentSpeed = Player.Kinematics.GetMagnitude();
+
+    if (RollLibrary.Rolling)
+    {
+        if (RollSound == 0)
+        {
+            int soundHandle = Player.Sound.PlaySound("sn_spindash");  //100074 //isInfinite?
+            Player.Sound.StopSound(&soundHandle);
+            rollSFX = false;
+        }
+        else if (RollSound == 1)
+        {
+            if (!rollSFX)
+            {
+                Player.Sound.PlaySound("sn_spindash");
+                rollSFX = true;
+            }
+        }
+        else if (RollSound == 2)
+        {
+            if (!rollSFX)
+            {
+                Player.Sound.PlaySound("sn_spindash");
+                rollSFX = true;
+                soundTimer = 0.0f;
+                targetSoundTime = (currentSpeed/85f);
+            }
+
+            targetSoundTime = (currentSpeed/85f);
+            soundTimer += Time.GetDeltaTime();
+
+            if (soundTimer > targetSoundTime) // tweak this (smaller = quieter)
+            {
+                int soundHandle = Player.Sound.PlaySound("sn_spindash");
+                Player.Sound.StopSound(&soundHandle);
+            }
+        }
+    }
+    else if (!RollLibrary.Rolling && rollSFX)
+    {
+        int soundHandle = Player.Sound.PlaySound("sn_spindash");
+        Player.Sound.StopSound(&soundHandle);
+        rollSFX = false;
+    }
+}
+
+
+Code "Dynamic FOV" by "Trepe"
+//
+	#include "Reflection" noemit
+    #include "BlackboardStatus" noemit
+
+    #lib "BlackboardStatus"
+    #lib "GameObject"
+    #lib "Player"
+	#lib "HMM"
+	#lib "INI"
+
+	#import "Services"
+    #import "Cameras"
+    #import "GOComponents"
+    #import "RollLibrary"
+
+	static bool IsConfigInitialised = false;
+	static int DynamicFOVy = 1;
+
+    static float speedThreshold = 20.0f;
+    static float maxSpeedForFOV = 90.0f;  // Speed at which FOV reaches its maximum
+    static float baseFOV = 50.0f;          // Default FOV when not moving fast
+    static float maxFOV = 80.0f;           // Maximum FOV
+    static float fovTransitionSpeed = 0.1f; // Speed of FOV transition per frame (lower is slower)
+//
+{
+    if (!IsConfigInitialised)
+    {
+        var modsQuery = HMM.FindModsByName("Dynamic Roll");
+        if (modsQuery.Count == 1)
+        {
+            string modConfigIniPath = System.IO.Path.Combine(modsQuery[0].Path, "config.ini");
+            var ini = INI.Read(modConfigIniPath);
+
+            DynamicFOVy = INI.Parse<int>(ini["RollAesthetics"]["DynamicFOVy"], DynamicFOVy);
+        }
+
+        IsConfigInitialised = true;
+    }
+
+    if (DynamicFOVy == 0)
+    {
+        return;
+    }
+
+    var pPlayer = Player.GetPlayerData();
+    if (pPlayer == null)
+    {
+        return;
+    }
+
+    var pGOCCamera = GameObject.GetGOC<GOCCamera>(&pPlayer->GameObject);
+    if (pGOCCamera == null)
+    {
+        return;
+    }
+
+    var pStandardCamera = pGOCCamera->GetCameraController<StandardCamera>();
+    if (pStandardCamera == null)
+    {
+        return;
+    }
+
+    // Get the player's horizontal speed
+    float horzMag = Player.Kinematics.GetHorizontalMagnitude();
+
+    // Calculate the target FOV based on speed
+    float targetFOV;
+
+    if (!IS_WORLD_FLAG(IsBattle))
+    {
+        if (RollLibrary.Rolling && (horzMag > speedThreshold))
+        {
+            // Calculate the interpolation factor
+            float factor = (horzMag - speedThreshold) / (maxSpeedForFOV - speedThreshold);
+            factor = MathHelpers.Clamp(factor, 0.0f, 1.0f);
+            targetFOV = MathHelpers.Lerp(baseFOV, maxFOV, factor);
+        }
+        else
+        {
+            targetFOV = baseFOV;
+        }
+
+        ChangeFOV();
+    }
+    else
+    {
+        return;
+    }
+
+    fovTransitionSpeed = (RollLibrary.Rolling ? 0.1f: 0.04f);
+
+    // Smoothly transition to the target FOV
+    void ChangeFOV()
+    {
+        float currentFOV = pStandardCamera->pContext->GetFieldOfView();
+        float newFOV = MathHelpers.Lerp(currentFOV, targetFOV, fovTransitionSpeed);
+        pStandardCamera->pContext->SetFieldOfView(newFOV);
+    }
+
 }
