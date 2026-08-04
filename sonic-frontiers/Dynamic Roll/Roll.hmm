@@ -1175,6 +1175,28 @@ Patch "Disable Drop Dash Turning Delay" in "Physics/Sonic" by "Hyper" does "Disa
 }
 
 
+Patch "Disable Spin Charge Camera" in "Camera" by "Hyper" does 
+/*
+Disables the zoom camera when charging a Spin Dash.
+
+Notes;
+- It is recommended that you use this with Increased Spin Charge Rotation Speed.
+*/
+{
+    WriteNop
+    (
+        /* 0x1408A67DC */
+        ScanSignature
+        (
+            "\xE8\xCC\xCC\xCC\xCC\x48\x8B\xCF\xBB\x24\x00\x00\x00",
+            "x????xxxxxxxx"
+        ),
+
+        5
+    );
+}
+
+
 Code "Fix Rolling in 2D" in "Fixes/Gameplay" by "Hyper" does
 /*
 Fixes the Drop Dash and Spin states getting stuck in 2D sections where the guide spline crosses paths with another.
@@ -1437,4 +1459,14 @@ Notes;
             _sfxHandle = 0;
         }
     }
+}
+
+
+Code "Disable Codes"
+//
+    #lib "Globals"
+//
+{
+    Globals.Set("Fix Drop Dash Transitions", false);
+    Globals.Set("Somersault Landing at High Velocity", false);
 }
