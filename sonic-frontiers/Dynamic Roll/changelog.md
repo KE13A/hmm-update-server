@@ -1,3 +1,6 @@
+# Dynamic Roll v1.4.1
+* Hotfix HHM codes interrupting behavior
+
 # Dynamic Roll v1.4.0
 * Added roll sound effect options
 * Added homing attack trail effect option
